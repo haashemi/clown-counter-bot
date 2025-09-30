@@ -25,8 +25,8 @@ const getData = (ctx: Context): Data | null => {
   return {
     chatId: message.chat.id,
     messageId: message.message_id,
-    voter: { id: voter.id, name: `${voter.first_name}${voter.last_name ? ` ${voter}` : ""}` },
-    clown: { id: clown.id, name: `${clown.first_name}${clown.last_name ? ` ${clown}` : ""}` },
+    voter: { id: voter.id, name: `${voter.first_name}${voter.last_name ? ` ${voter.last_name}` : ""}` },
+    clown: { id: clown.id, name: `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}` },
   };
 };
 
