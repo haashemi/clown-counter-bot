@@ -72,7 +72,7 @@ export const onClown = async (ctx: Context) => {
     .returning({ id: usersTable.tgId });
 
   if (!(await canInsert(data))) {
-    return ctx.reply(`دلقک یه ${CLOWN_DELAY / 60 / 1000} کن حداقل. 😭`, {
+    return ctx.reply(`دلقک یه ${CLOWN_DELAY / 60 / 1000} دقیقه صبر کن حداقل. 😭`, {
       reply_parameters: { message_id: messageId, chat_id: chatId },
     });
   }
