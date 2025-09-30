@@ -82,11 +82,11 @@ bot.command("stats", async (ctx) => {
     });
   }
 
-  const clownsText = clowns.map((c) => `\u200F— ${c.name} با ${c.count} رای`, {
+  const clownsText = clowns.map((c) => `\u200F— ${c.name} با ${c.count} رای`);
+
+  ctx.reply(`🔥 دلقک‌های برتر گروه\n\n${clownsText.join("\n")}`, {
     reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
   });
-
-  ctx.reply(`🔥 دلقک‌های برتر گروه\n\n${clownsText.join("\n")}`);
 });
 
 await bot.api.setMyCommands([{ command: "stats", description: "استارت دلقک‌شماری رو بزن" }], {

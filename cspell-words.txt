@@ -7,3 +7,5 @@ gitmessage
 nodenext
 unrs
 Valkey
+اولیش
+ریپلای
