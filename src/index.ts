@@ -57,10 +57,15 @@ bot.command("clown", async (ctx) => {
     })
     .onConflictDoNothing();
 
-  ctx.reply(`🤡 دلقک انتخابی شما به ${clownName} تغییر کرد.`);
+  ctx.reply(`🤡 دلقک انتخابی شما به ${clownName} تغییر کرد.`, {
+    reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
+  });
 });
 
 bot.command("stats", async (ctx) => {
+  const message = ctx.message;
+  if (!message) return;
+
   const clowns = await db
     .select({
       name: clownsTable.name,
@@ -72,10 +77,14 @@ bot.command("stats", async (ctx) => {
     .orderBy(desc(count(clownVotesTable.id)));
 
   if (clowns.length === 0) {
-    return ctx.reply("دلقک‌های گروه شما هنوز مشخص نیست.\n\nنظرت چیه اولیش خودت باشی؟ 🤡");
+    return ctx.reply("دلقک‌های گروه شما هنوز مشخص نیست.\n\nنظرت چیه اولیش خودت باشی؟ 🤡", {
+      reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
+    });
   }
 
-  const clownsText = clowns.map((c) => `\u200F— ${c.name} با ${c.count} رای`);
+  const clownsText = clowns.map((c) => `\u200F— ${c.name} با ${c.count} رای`, {
+    reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
+  });
 
   ctx.reply(`🔥 دلقک‌های برتر گروه\n\n${clownsText.join("\n")}`);
 });
