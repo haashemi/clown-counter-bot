@@ -2,29 +2,29 @@ import { Bot } from "grammy";
 
 import { config } from "@/config";
 
-import { onClown } from "./handlers/clown";
-import { onStart } from "./handlers/start";
-import { onStats } from "./handlers/stats";
+import { onClown, onPrivacy, onStart, onStats } from "./handlers";
 
 const bot = new Bot(config.botToken);
 
 bot.command("start", onStart);
-bot.command("stats", onStats);
+bot.command("privacy", onPrivacy);
 
 bot.hears(["🤡", "دلقک"], onClown);
 bot.command("clown", onClown);
+bot.command("stats", onStats);
 
 await bot.api.setMyCommands(
   [
-    { command: "stats", description: "استارت دلقک‌شماری رو بزن" }, //
+    { command: "start", description: "🎉 شروع دلقک بازی" },
+    { command: "privacy", description: "🔒 حریم شخصی" },
   ],
   { scope: { type: "all_private_chats" } },
 );
 
 await bot.api.setMyCommands(
   [
-    { command: "clown", description: "سطح دلقکی فرد ریپلای شده رو افزایش بده" },
-    { command: "stats", description: "لیست دلقک‌های برتر گروه" },
+    { command: "clown", description: "🤡 دلقک یافت شد!" },
+    { command: "stats", description: "📊 لیست دلقک‌های برتر گروه" },
   ],
   { scope: { type: "all_group_chats" } },
 );
