@@ -1,0 +1,13 @@
+engineStrict: true
+
+onlyBuiltDependencies:
+  - esbuild
+  - oxc-resolver
+  - simple-git-hooks
+  - unrs-resolver
+
+packageManagerStrictVersion: true
+
+savePrefix: ''
+
+strictPeerDependencies: true
