@@ -1,0 +1,106 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "7fe7843d-3fd6-4f1e-8606-b026c32b05c9",
+  "prevId": "6dcfac79-22f4-482b-92d8-19e670be1602",
+  "tables": {
+    "clown_votes": {
+      "name": "clown_votes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voter_id": {
+          "name": "voter_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "clown_id": {
+          "name": "clown_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voted_at": {
+          "name": "voted_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "clown_votes_voter_id_users_tg_id_fk": {
+          "name": "clown_votes_voter_id_users_tg_id_fk",
+          "tableFrom": "clown_votes",
+          "tableTo": "users",
+          "columnsFrom": ["voter_id"],
+          "columnsTo": ["tg_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "clown_votes_clown_id_users_tg_id_fk": {
+          "name": "clown_votes_clown_id_users_tg_id_fk",
+          "tableFrom": "clown_votes",
+          "tableTo": "users",
+          "columnsFrom": ["clown_id"],
+          "columnsTo": ["tg_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "tg_id": {
+          "name": "tg_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

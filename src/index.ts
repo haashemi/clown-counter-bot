@@ -23,7 +23,7 @@ await bot.api.setMyCommands(
 
 await bot.api.setMyCommands(
   [
-    { command: "clown", description: "دلقک گروه رو انتخاب کن" },
+    { command: "clown", description: "سطح دلقکی فرد ریپلای شده رو افزایش بده" },
     { command: "stats", description: "لیست دلقک‌های برتر گروه" },
   ],
   { scope: { type: "all_group_chats" } },

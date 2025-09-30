@@ -2,43 +2,83 @@ import type { Context } from "grammy";
 
 import { clownVotesTable, db, usersTable } from "@/db";
 
+const CLOWN_DELAY = 10 * 60 * 1000;
+
+interface Data {
+  chatId: number;
+  messageId: number;
+
+  voter: { id: number; name: string };
+  clown: { id: number; name: string };
+}
+
+const getData = (ctx: Context): Data | null => {
+  const message = ctx.message;
+
+  if (!message) return null;
+
+  const voter = message.from;
+  const clown = message.reply_to_message?.from;
+
+  if (!clown || !voter) return null;
+
+  return {
+    chatId: message.chat.id,
+    messageId: message.message_id,
+    voter: { id: voter.id, name: `${voter.first_name}${voter.last_name ? ` ${voter}` : ""}` },
+    clown: { id: clown.id, name: `${clown.first_name}${clown.last_name ? ` ${clown}` : ""}` },
+  };
+};
+
+const canInsert = async ({ chatId, voter }: Data): Promise<boolean> => {
+  const res = await db.query.clownVotesTable.findFirst({
+    columns: { votedAt: true },
+    where: (f, o) => o.and(o.eq(f.groupId, chatId), o.eq(f.voterId, voter.id)),
+    orderBy: (f, o) => o.desc(f.votedAt),
+  });
+
+  if (!res) return true;
+
+  return new Date().getTime() - new Date(res.votedAt).getTime() > CLOWN_DELAY;
+};
+
 export const onClown = async (ctx: Context) => {
-  const messageId = ctx.message?.message_id;
-  const chatId = ctx.message?.chat.id;
-  const clown = ctx.message?.reply_to_message?.from;
-  const user = ctx.message?.from;
-  if (!messageId || !chatId || !clown || !user) return;
+  const data = getData(ctx);
+  if (!data) return;
 
-  const userName = `${user.first_name}${user.last_name ? ` ${user.last_name}` : ""}`;
-  const clownName = `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}`;
+  const { chatId, messageId, voter, clown } = data;
 
-  const dbUser = await db
+  await db
     .insert(usersTable)
-    .values({ tgId: user.id, name: userName })
-    .onConflictDoUpdate({ target: usersTable.tgId, set: { name: userName } })
+    .values({ tgId: voter.id, name: voter.name })
+    .onConflictDoUpdate({ target: usersTable.tgId, set: { name: voter.name } })
     .returning({ id: usersTable.tgId });
 
-  const dbClown = await db
+  await db
     .insert(usersTable)
-    .values({ tgId: clown.id, name: clownName })
-    .onConflictDoUpdate({ target: usersTable.tgId, set: { name: clownName } })
+    .values({ tgId: clown.id, name: clown.name })
+    .onConflictDoUpdate({ target: usersTable.tgId, set: { name: clown.name } })
     .returning({ id: usersTable.tgId });
 
-  if (!dbClown[0] || !dbUser[0]) return;
+  if (!(await canInsert(data))) {
+    return ctx.reply(`دلقک یه ${CLOWN_DELAY / 60 / 1000} کن حداقل. 😭`, {
+      reply_parameters: { message_id: messageId, chat_id: chatId },
+    });
+  }
 
   await db
     .insert(clownVotesTable)
     .values({
       groupId: chatId,
-      voterId: dbUser[0].id,
-      clownId: dbClown[0].id,
+      voterId: voter.id,
+      clownId: clown.id,
     })
     .onConflictDoUpdate({
       target: [clownVotesTable.groupId, clownVotesTable.voterId],
-      set: { clownId: dbClown[0].id },
+      set: { clownId: clown.id },
     });
 
-  ctx.reply(`🤡 دلقک انتخابی شما به ${clownName} تغییر کرد.`, {
+  ctx.reply(`\u200F🤡 ${voter.name} کاربر ${clown.name} رو دلقک تر کرد!`, {
     reply_parameters: { message_id: messageId, chat_id: chatId },
   });
 };
