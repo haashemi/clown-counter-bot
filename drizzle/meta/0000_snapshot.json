@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b68fc7e9-0487-4f62-8fad-6f61a54aed48",
+  "id": "6dcfac79-22f4-482b-92d8-19e670be1602",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clown_votes": {
@@ -13,6 +13,13 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "voter_id": {
           "name": "voter_id",
@@ -37,118 +44,32 @@
         }
       },
       "indexes": {
-        "clown_votes_voterId_unique": {
-          "name": "clown_votes_voterId_unique",
-          "columns": [
-            "voter_id"
-          ],
-          "isUnique": true
-        },
-        "clown_votes_clownId_unique": {
-          "name": "clown_votes_clownId_unique",
-          "columns": [
-            "clown_id"
-          ],
-          "isUnique": true
-        },
         "idx_unique_clown_vote": {
           "name": "idx_unique_clown_vote",
-          "columns": [
-            "clown_id",
-            "voter_id"
-          ],
+          "columns": ["group_id", "voter_id"],
           "isUnique": true
         }
       },
       "foreignKeys": {
-        "clown_votes_voter_id_users_id_fk": {
-          "name": "clown_votes_voter_id_users_id_fk",
+        "clown_votes_voter_id_users_tg_id_fk": {
+          "name": "clown_votes_voter_id_users_tg_id_fk",
           "tableFrom": "clown_votes",
           "tableTo": "users",
-          "columnsFrom": [
-            "voter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["voter_id"],
+          "columnsTo": ["tg_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "clown_votes_clown_id_clowns_id_fk": {
-          "name": "clown_votes_clown_id_clowns_id_fk",
+        "clown_votes_clown_id_users_tg_id_fk": {
+          "name": "clown_votes_clown_id_users_tg_id_fk",
           "tableFrom": "clown_votes",
-          "tableTo": "clowns",
-          "columnsFrom": [
-            "clown_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "tableTo": "users",
+          "columnsFrom": ["clown_id"],
+          "columnsTo": ["tg_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "clowns": {
-      "name": "clowns",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "tg_id": {
-          "name": "tg_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "group_id": {
-          "name": "group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "clowns_tgId_unique": {
-          "name": "clowns_tgId_unique",
-          "columns": [
-            "tg_id"
-          ],
-          "isUnique": true
-        },
-        "clowns_groupId_unique": {
-          "name": "clowns_groupId_unique",
-          "columns": [
-            "group_id"
-          ],
-          "isUnique": true
-        },
-        "idx_unique_clown_in_group": {
-          "name": "idx_unique_clown_in_group",
-          "columns": [
-            "tg_id",
-            "group_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -156,17 +77,10 @@
     "users": {
       "name": "users",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
         "tg_id": {
           "name": "tg_id",
           "type": "integer",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
@@ -178,15 +92,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "users_tgId_unique": {
-          "name": "users_tgId_unique",
-          "columns": [
-            "tg_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
