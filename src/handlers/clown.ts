@@ -48,7 +48,12 @@ export const onClown = async (ctx: Context) => {
 
   const { chatId, messageId, voter, clown } = data;
 
-  if (voter.id === clown.id) {
+  if (clown.id === ctx.me.id) {
+    return ctx.reply(
+      `🤡 آره داداش بذار ربات رو دلقک کنم خیلی کار باحالیه به ذهن کسی هم نمی‌رسه ای وای که چقدر باهوشم من. پر از هوش و ذکاوت و استعداد نهفته.\n\n🙏 هرکیو بتونی دلقک کنی منو نمی‌تونی.`,
+      { reply_parameters: { message_id: messageId, chat_id: chatId } },
+    );
+  } else if (voter.id === clown.id) {
     return ctx.reply(`واقعا می‌خوای خودتو دلقک کنی؟ تو دیگه خیلی دلقکی. 😭`, {
       reply_parameters: { message_id: messageId, chat_id: chatId },
     });
