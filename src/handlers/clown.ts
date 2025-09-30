@@ -48,6 +48,12 @@ export const onClown = async (ctx: Context) => {
 
   const { chatId, messageId, voter, clown } = data;
 
+  if (voter.id === clown.id) {
+    return ctx.reply(`واقعا می‌خوای خودتو دلقک کنی؟ تو دیگه خیلی دلقکی. 😭`, {
+      reply_parameters: { message_id: messageId, chat_id: chatId },
+    });
+  }
+
   await db
     .insert(usersTable)
     .values({ tgId: voter.id, name: voter.name })

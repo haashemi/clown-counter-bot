@@ -9,4 +9,5 @@ nodenext
 unrs
 Valkey
 اولیش
+خوای
 ریپلای
