@@ -66,17 +66,11 @@ export const onClown = async (ctx: Context) => {
     });
   }
 
-  await db
-    .insert(clownVotesTable)
-    .values({
-      groupId: chatId,
-      voterId: voter.id,
-      clownId: clown.id,
-    })
-    .onConflictDoUpdate({
-      target: [clownVotesTable.groupId, clownVotesTable.voterId],
-      set: { clownId: clown.id },
-    });
+  await db.insert(clownVotesTable).values({
+    groupId: chatId,
+    voterId: voter.id,
+    clownId: clown.id,
+  });
 
   ctx.reply(`\u200F🤡 ${voter.name} کاربر ${clown.name} رو دلقک تر کرد!`, {
     reply_parameters: { message_id: messageId, chat_id: chatId },
