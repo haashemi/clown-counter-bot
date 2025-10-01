@@ -5,9 +5,17 @@ export const usersTable = t.sqliteTable("users", {
   name: t.text().notNull(),
 });
 
+export const groupsTable = t.sqliteTable("groups", {
+  tgId: t.int().notNull().primaryKey(),
+  name: t.text(),
+});
+
 export const clownVotesTable = t.sqliteTable("clown_votes", {
   id: t.int().primaryKey({ autoIncrement: true }),
-  groupId: t.int().notNull(),
+  groupId: t
+    .int()
+    .notNull()
+    .references(() => groupsTable.tgId),
   voterId: t
     .int()
     .notNull()

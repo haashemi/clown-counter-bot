@@ -15,6 +15,13 @@
       "when": 1759272263057,
       "tag": "0001_aberrant_captain_midlands",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1759329597208,
+      "tag": "0002_overjoyed_maginty",
+      "breakpoints": true
     }
   ]
 }

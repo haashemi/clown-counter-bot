@@ -5,6 +5,8 @@ esbenp
 esbuild
 fullstacksjs
 gitmessage
+libsql
+maginty
 nodenext
 unrs
 Valkey
