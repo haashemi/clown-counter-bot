@@ -4,6 +4,6 @@ declare namespace NodeJS {
     BOT_TOKEN?: string;
 
     // Database Config
-    DB_URL?: string;
+    DB_FILE_PATH?: string;
   }
 }

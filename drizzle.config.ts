@@ -8,5 +8,5 @@ export default defineConfig({
   schema: "./src/db/schema/",
   strict: true,
   casing: "snake_case",
-  dbCredentials: { url: config.dbUrl },
+  dbCredentials: { url: config.dbFilePath },
 });

@@ -5,13 +5,13 @@ const configSchema = z.object({
   /** Telegram Bot token */
   botToken: z.string(),
 
-  /** Database (SQLite) connection url */
-  dbUrl: z.string(),
+  /** Database (SQLite) file path */
+  dbFilePath: z.string(),
 });
 
 const configRaw: DeepPartial<z.input<typeof configSchema>> = {
   botToken: env.BOT_TOKEN,
-  dbUrl: env.DB_URL,
+  dbFilePath: env.DB_FILE_PATH,
 };
 
 export const config = configSchema.parse(configRaw);
