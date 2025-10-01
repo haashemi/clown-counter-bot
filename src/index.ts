@@ -19,6 +19,7 @@ await bot.api.setMyCommands(
   [
     { command: "start", description: "🎉 شروع دلقک بازی" },
     { command: "privacy", description: "🔒 حریم شخصی" },
+    { command: "source", description: "🪄 سورس‌کد ربات" },
   ],
   { scope: { type: "all_private_chats" } },
 );
