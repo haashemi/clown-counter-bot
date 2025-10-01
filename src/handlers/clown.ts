@@ -1,4 +1,5 @@
 import type { Context } from "grammy";
+import type { User } from "grammy/types";
 
 import { clownVotesTable, db, usersTable } from "@/db";
 
@@ -8,8 +9,8 @@ interface Data {
   chatId: number;
   messageId: number;
 
-  voter: { id: number; name: string };
-  clown: { id: number; name: string };
+  voter: User & { name: string };
+  clown: User & { name: string };
 }
 
 const getData = (ctx: Context): Data | null => {
@@ -25,8 +26,8 @@ const getData = (ctx: Context): Data | null => {
   return {
     chatId: message.chat.id,
     messageId: message.message_id,
-    voter: { id: voter.id, name: `${voter.first_name}${voter.last_name ? ` ${voter.last_name}` : ""}` },
-    clown: { id: clown.id, name: `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}` },
+    voter: { ...voter, name: `${voter.first_name}${voter.last_name ? ` ${voter.last_name}` : ""}` },
+    clown: { ...clown, name: `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}` },
   };
 };
 
@@ -53,6 +54,10 @@ export const onClown = async (ctx: Context) => {
       `🤡 آره داداش بذار ربات رو دلقک کنم خیلی کار باحالیه به ذهن کسی هم نمی‌رسه ای وای که چقدر باهوشم من. پر از هوش و ذکاوت و استعداد نهفته.\n\n🙏 هرکیو بتونی دلقک کنی منو نمی‌تونی.`,
       { reply_parameters: { message_id: messageId, chat_id: chatId } },
     );
+  } else if (clown.is_bot) {
+    return ctx.reply(`😂 ربات رو می‌خوای دلقک کنی؟ جدی؟ تو دیگه شاهکاری!`, {
+      reply_parameters: { message_id: messageId, chat_id: chatId },
+    });
   } else if (voter.id === clown.id) {
     return ctx.reply(`واقعا می‌خوای خودتو دلقک کنی؟ تو دیگه خیلی دلقکی. 😭`, {
       reply_parameters: { message_id: messageId, chat_id: chatId },
