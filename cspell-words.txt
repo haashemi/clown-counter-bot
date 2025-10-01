@@ -8,6 +8,7 @@ gitmessage
 libsql
 maginty
 nodenext
+supergroup
 unrs
 Valkey
 آیدی
