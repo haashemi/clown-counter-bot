@@ -28,16 +28,26 @@ const getData = (ctx: Context): Data | null => {
   };
 };
 
-const canInsert = async ({ group: { id }, voter }: Data): Promise<boolean> => {
+const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin?: number }> => {
   const res = await db.query.clownVotesTable.findFirst({
     columns: { votedAt: true },
     where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
     orderBy: (f, o) => o.desc(f.votedAt),
   });
 
-  if (!res) return true;
+  if (!res) return { allowed: true };
 
-  return new Date().getTime() - new Date(res.votedAt).getTime() > CLOWN_DELAY;
+  const now = Date.now();
+  const last = new Date(res.votedAt).getTime();
+  const diff = now - last;
+
+  if (diff > CLOWN_DELAY) {
+    return { allowed: true };
+  }
+
+  const waitMin = Math.ceil((CLOWN_DELAY - diff) / 1000 / 60);
+
+  return { allowed: false, waitMin };
 };
 
 export const onClown = async (ctx: Context) => {
@@ -78,8 +88,9 @@ export const onClown = async (ctx: Context) => {
       .onConflictDoUpdate({ target: groupsTable.tgId, set: { name: group.name } }),
   ]);
 
-  if (!(await canInsert(data))) {
-    return ctx.reply(`دلقک یه ${CLOWN_DELAY / 60 / 1000} دقیقه صبر کن حداقل. 😭`, {
+  const result = await canInsert(data);
+  if (!result.allowed) {
+    return ctx.reply(`⏳ هنوز زوده! ${result.waitMin} دقیقه دیگه می‌تونی دلقک کنی.`, {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
