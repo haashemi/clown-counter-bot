@@ -5,7 +5,7 @@ import { and, count, eq } from "drizzle-orm";
 
 import { clownVotesTable, db, groupsTable, usersTable } from "@/db";
 
-const CLOWN_DELAY = /* 10 * 60 * */ 1000;
+const CLOWN_DELAY = 10 * 60 * 1000;
 
 interface Data {
   messageId: number;
