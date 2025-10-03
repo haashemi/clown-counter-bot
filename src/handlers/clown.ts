@@ -1,9 +1,11 @@
 import type { Context } from "grammy";
 import type { User } from "grammy/types";
 
+import { and, count, eq } from "drizzle-orm";
+
 import { clownVotesTable, db, groupsTable, usersTable } from "@/db";
 
-const CLOWN_DELAY = 10 * 60 * 1000;
+const CLOWN_DELAY = /* 10 * 60 * */ 1000;
 
 interface Data {
   messageId: number;
@@ -101,7 +103,16 @@ export const onClown = async (ctx: Context) => {
     clownId: clown.id,
   });
 
-  ctx.reply(`\u200F🤡 ${voter.name} کاربر ${clown.name} رو دلقک تر کرد!`, {
+  const voteCountResult = await db
+    .select({ count: count() })
+    .from(clownVotesTable)
+    .where(and(eq(clownVotesTable.groupId, group.id), eq(clownVotesTable.clownId, clown.id)));
+
+  const voteCount = voteCountResult[0]?.count || 0;
+
+  const tars = voteCount > 0 ? " تر".repeat(voteCount) : " تر";
+
+  ctx.reply(`\u200F🤡 ${voter.name} کاربر ${clown.name} رو دلقک${tars} کرد!`, {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
 };
