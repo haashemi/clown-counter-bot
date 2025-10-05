@@ -1,36 +1,6 @@
 {
+  "exclude": ["@rabits/tsconfig/tsx"],
   "compilerOptions": {
-    /* Base Options: */
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "es2024",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-
-    /* TSX */
-    "lib": ["ES2024"],
-    "module": "preserve",
-    "noEmit": true,
-
-    /* Strictness */
-    "strict": true,
-    "checkJs": true,
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "forceConsistentCasingInFileNames": true,
-
-    // Import Aliases
     "paths": {
       "@/config": ["./src/config/index.ts"],
       "@/db": ["./src/db/index.ts"],

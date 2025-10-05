@@ -26,6 +26,7 @@
     "@cspell/dict-fa-ir": "4.0.5",
     "@cspell/dict-sql": "2.2.1",
     "@fullstacksjs/eslint-config": "13.5.0",
+    "@rabits/tsconfig": "0.2.0",
     "@types/node": "24.5.2",
     "cspell": "9.2.1",
     "drizzle-kit": "0.31.5",

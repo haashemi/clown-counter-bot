@@ -39,6 +39,9 @@ importers:
       '@fullstacksjs/eslint-config':
         specifier: 13.5.0
         version: 13.5.0(@typescript-eslint/eslint-plugin@8.44.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2))(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2))(@typescript-eslint/utils@8.45.0(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2))(eslint@9.36.0(jiti@2.6.0))(prettier@3.6.2)(tailwindcss@4.1.13)(ts-api-utils@2.1.0(typescript@5.9.2))(typescript@5.9.2)
+      '@rabits/tsconfig':
+        specifier: 0.2.0
+        version: 0.2.0(typescript@5.9.2)
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -893,6 +896,11 @@ packages:
   '@pkgr/core@0.2.9':
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
+
+  '@rabits/tsconfig@0.2.0':
+    resolution: {integrity: sha512-c8Wr0BQQ8AsSzrFa9m5jL0t7CARPVzzryDh7Isgcx0qeTvqlh+hIC6jsom+p2oogS2V3XdGdgcHOiE52WaQ9Cg==}
+    peerDependencies:
+      typescript: '>=5.6'
 
   '@storybook/csf@0.1.13':
     resolution: {integrity: sha512-7xOOwCLGB3ebM87eemep89MYRFTko+D8qE7EdAAq74lgdqRR5cOUtYWJLjO2dLtP94nqoOdHJo6MdLLKzg412Q==}
@@ -3860,6 +3868,10 @@ snapshots:
       fastq: 1.19.1
 
   '@pkgr/core@0.2.9': {}
+
+  '@rabits/tsconfig@0.2.0(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
 
   '@storybook/csf@0.1.13':
     dependencies:
