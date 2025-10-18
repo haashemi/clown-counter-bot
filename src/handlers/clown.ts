@@ -1,5 +1,6 @@
-import type { Context } from "grammy";
 import type { User } from "grammy/types";
+
+import type { BotContext } from "@/lib/bot";
 
 import { clownVotesTable, db, groupsTable, usersTable } from "@/db";
 
@@ -12,7 +13,7 @@ interface Data {
   clown: User & { name: string };
 }
 
-const getData = (ctx: Context): Data | null => {
+const getData = (ctx: BotContext): Data | null => {
   if (!ctx.message) return null;
 
   const voter = ctx.message.from;
@@ -28,21 +29,21 @@ const getData = (ctx: Context): Data | null => {
   };
 };
 
-const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin?: number }> => {
+const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> => {
   const res = await db.query.clownVotesTable.findFirst({
     columns: { votedAt: true },
     where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
     orderBy: (f, o) => o.desc(f.votedAt),
   });
 
-  if (!res) return { allowed: true };
+  if (!res) return { allowed: true, waitMin: 0 };
 
   const now = Date.now();
   const last = new Date(res.votedAt).getTime();
   const diff = now - last;
 
   if (diff > CLOWN_DELAY) {
-    return { allowed: true };
+    return { allowed: true, waitMin: 0 };
   }
 
   const waitMin = Math.ceil((CLOWN_DELAY - diff) / 1000 / 60);
@@ -50,23 +51,22 @@ const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boo
   return { allowed: false, waitMin };
 };
 
-export const onClown = async (ctx: Context) => {
+export const onClown = async (ctx: BotContext) => {
   const data = getData(ctx);
   if (!data) return;
 
   const { messageId, group, voter, clown } = data;
 
   if (clown.id === ctx.me.id) {
-    return ctx.reply(
-      `🤡 آره داداش بذار ربات رو دلقک کنم خیلی کار باحالیه به ذهن کسی هم نمی‌رسه ای وای که چقدر باهوشم من. پر از هوش و ذکاوت و استعداد نهفته.\n\n🙏 هرکیو بتونی دلقک کنی منو نمی‌تونی.`,
-      { reply_parameters: { message_id: messageId, chat_id: group.id } },
-    );
+    return await ctx.reply(ctx.t("cmd_clown_is_me"), {
+      reply_parameters: { message_id: messageId, chat_id: group.id },
+    });
   } else if (clown.is_bot) {
-    return ctx.reply(`😂 ربات رو می‌خوای دلقک کنی؟ جدی؟ تو دیگه شاهکاری!`, {
+    return await ctx.reply(ctx.t("cmd_clown_is_bot"), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   } else if (voter.id === clown.id) {
-    return ctx.reply(`واقعا می‌خوای خودتو دلقک کنی؟ تو دیگه خیلی دلقکی. 😭`, {
+    return await ctx.reply(ctx.t("cmd_clown_is_you"), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
@@ -90,7 +90,7 @@ export const onClown = async (ctx: Context) => {
 
   const result = await canInsert(data);
   if (!result.allowed) {
-    return ctx.reply(`⏳ هنوز زوده! ${result.waitMin} دقیقه دیگه می‌تونی دلقک کنی.`, {
+    return await ctx.reply(ctx.t("cmd_clown_wait", { waitMin: result.waitMin }), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
@@ -101,7 +101,7 @@ export const onClown = async (ctx: Context) => {
     clownId: clown.id,
   });
 
-  ctx.reply(`\u200F🤡 ${voter.name} کاربر ${clown.name} رو دلقک تر کرد!`, {
+  return await ctx.reply(ctx.t("cmd_clown", { clown: clown.name, voter: voter.name }), {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
 };

@@ -1,10 +1,10 @@
-import type { Context } from "grammy";
-
 import { count, desc, eq } from "drizzle-orm";
+
+import type { BotContext } from "@/lib/bot";
 
 import { clownVotesTable, db, usersTable } from "@/db";
 
-export const onStats = async (ctx: Context) => {
+export const onStats = async (ctx: BotContext) => {
   const message = ctx.message;
   if (!message) return;
 
@@ -20,14 +20,14 @@ export const onStats = async (ctx: Context) => {
     .orderBy(desc(count(clownVotesTable.id)));
 
   if (clowns.length === 0) {
-    return ctx.reply("دلقک‌های گروه شما هنوز مشخص نیست.\n\nنظرت چیه اولیش خودت باشی؟ 🤡", {
+    return await ctx.reply(ctx.t("cmd_stats_no_clown"), {
       reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
     });
   }
 
-  const clownsText = clowns.map((c) => `\u200F— ${c.name} با ${c.count} رای`);
+  const clownsText = clowns.map((c) => ctx.t("cmd_stats_group_clown", { name: c.name ?? "", votes: c.count }));
 
-  ctx.reply(`🔥 دلقک‌های برتر گروه\n\n${clownsText.join("\n")}`, {
+  return await ctx.reply(ctx.t("cmd_stats_group", { clowns: clownsText.join("\n") }), {
     reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
   });
 };

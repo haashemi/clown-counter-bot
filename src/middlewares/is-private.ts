@@ -1,6 +1,8 @@
-import type { Context, NextFunction } from "grammy";
+import type { NextFunction } from "grammy";
 
-export const isPrivate = async (ctx: Context, next: NextFunction): Promise<void> => {
+import type { BotContext } from "@/lib/bot";
+
+export const isPrivate = async (ctx: BotContext, next: NextFunction): Promise<void> => {
   const isInPrivate = ctx.chat?.type === "private";
 
   if (isInPrivate) await next();

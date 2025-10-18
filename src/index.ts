@@ -1,6 +1,5 @@
-import { Bot, GrammyError, HttpError } from "grammy";
-
 import { config } from "@/config";
+import { Bot } from "@/lib/bot";
 import { isGroup, isPrivate } from "@/middlewares";
 
 import { onClown, onPrivacy, onSource, onStart, onStats } from "./handlers";
@@ -31,21 +30,5 @@ await bot.api.setMyCommands(
   ],
   { scope: { type: "all_group_chats" } },
 );
-
-bot.catch((err) => {
-  // eslint-disable-next-line no-console
-  const logErr = console.error;
-
-  logErr(`Error while handling update ${err.ctx.update.update_id}:`);
-
-  const e = err.error;
-  if (e instanceof GrammyError) {
-    logErr("Error in request:", e.description);
-  } else if (e instanceof HttpError) {
-    logErr("Could not contact Telegram:", e);
-  } else {
-    logErr("Unknown error:", e);
-  }
-});
 
 bot.start();
