@@ -10,6 +10,5 @@
     }
   ],
   "dictionaries": ["sql", "cspell-words"],
-  "ignorePaths": ["node_modules", "/cspell-words.txt", "./pnpm-lock.yaml"],
-  "enabled": true
+  "ignorePaths": ["node_modules", "./pnpm-*.yaml"]
 }

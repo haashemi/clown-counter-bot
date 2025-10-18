@@ -1,16 +1,13 @@
 AUTOINCREMENT
 commitlint
-dbaeumer
-esbenp
-esbuild
 fullstacksjs
 gitmessage
+grammyjs
 libsql
 maginty
 nodenext
 rabits
 supergroup
-unrs
 Valkey
 آیدی
 اجراش
@@ -19,6 +16,7 @@ Valkey
 اولیش
 اومدی
 باحالیه
+باشه
 ببینه
 بذار
 بگذره
@@ -34,13 +32,16 @@ Valkey
 دارین
 دلقکیشون
 دوستانتونه
+رباته
 ریپازیتوری
 ریپلای
+زوده
 سازیش
 سازیشون
 سورس
 گذرونی
 معنیه
+میاد
 میشن
 میشه
 نداره
@@ -48,4 +49,3 @@ Valkey
 هاتون
 هرکیو
 هستن
-زوده

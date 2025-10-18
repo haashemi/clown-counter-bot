@@ -1,5 +1,5 @@
 {
-  "exclude": ["@rabits/tsconfig/tsx"],
+  "extends": ["@rabits/tsconfig/tsx"],
   "compilerOptions": {
     "paths": {
       "@/config": ["./src/config/index.ts"],
