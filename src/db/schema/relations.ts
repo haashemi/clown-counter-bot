@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 
-import { clownVotesTable, groupsTable, usersTable } from "./schema";
+import { clownVotesTable, groupsTable, usersTable } from "./tables";
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
   voted: many(clownVotesTable),

@@ -13,7 +13,7 @@ interface Data {
   clown: User & { name: string };
 }
 
-const getData = (ctx: BotContext): Data | null => {
+function getData(ctx: BotContext): Data | null {
   if (!ctx.message) return null;
 
   const voter = ctx.message.from;
@@ -27,9 +27,9 @@ const getData = (ctx: BotContext): Data | null => {
     voter: { ...voter, name: `${voter.first_name}${voter.last_name ? ` ${voter.last_name}` : ""}` },
     clown: { ...clown, name: `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}` },
   };
-};
+}
 
-const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> => {
+async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
   const res = await db.query.clownVotesTable.findFirst({
     columns: { votedAt: true },
     where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
@@ -49,9 +49,9 @@ const canInsert = async ({ group: { id }, voter }: Data): Promise<{ allowed: boo
   const waitMin = Math.ceil((CLOWN_DELAY - diff) / 1000 / 60);
 
   return { allowed: false, waitMin };
-};
+}
 
-export const onClown = async (ctx: BotContext) => {
+export async function onClown(ctx: BotContext) {
   const data = getData(ctx);
   if (!data) return;
 
@@ -104,4 +104,4 @@ export const onClown = async (ctx: BotContext) => {
   return await ctx.reply(ctx.t("cmd_clown", { clown: clown.name, voter: voter.name }), {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
-};
+}

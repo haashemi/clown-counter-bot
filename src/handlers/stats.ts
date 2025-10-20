@@ -4,7 +4,7 @@ import type { BotContext } from "@/lib/bot";
 
 import { clownVotesTable, db, usersTable } from "@/db";
 
-export const onStats = async (ctx: BotContext) => {
+export async function onStats(ctx: BotContext) {
   const message = ctx.message;
   if (!message) return;
 
@@ -30,4 +30,4 @@ export const onStats = async (ctx: BotContext) => {
   return await ctx.reply(ctx.t("cmd_stats_group", { clowns: clownsText.join("\n") }), {
     reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
   });
-};
+}

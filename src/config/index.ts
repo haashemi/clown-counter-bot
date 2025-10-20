@@ -1,17 +1,17 @@
+import { Config } from "@fullstacksjs/config";
 import { env } from "node:process";
-import z from "zod";
 
-const configSchema = z.object({
+const schema = new Config({
   /** Telegram Bot token */
-  botToken: z.string(),
+  botToken: Config.string().required(),
 
   /** Database (SQLite) file path */
-  dbFilePath: z.string(),
+  dbFilePath: Config.string({ default: "file:database.sqlite" }),
 });
 
-const configRaw: DeepPartial<z.input<typeof configSchema>> = {
-  botToken: env.BOT_TOKEN,
-  dbFilePath: env.DB_FILE_PATH,
-};
-
-export const config = configSchema.parse(configRaw);
+export const config = schema
+  .parse({
+    botToken: env.BOT_TOKEN,
+    dbFilePath: env.DB_FILE_PATH,
+  })
+  .getAll();

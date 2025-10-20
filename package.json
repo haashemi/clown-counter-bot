@@ -14,12 +14,12 @@
     "prepare": "simple-git-hooks && git config --local commit.template '.gitmessage'"
   },
   "dependencies": {
+    "@fullstacksjs/config": "1.1.0",
     "@grammyjs/auto-retry": "2.0.2",
     "@grammyjs/i18n": "1.1.2",
     "@libsql/client": "0.15.15",
     "drizzle-orm": "0.44.6",
-    "grammy": "1.38.3",
-    "zod": "4.1.12"
+    "grammy": "1.38.3"
   },
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
@@ -27,13 +27,13 @@
     "@commitlint/types": "20.0.0",
     "@cspell/dict-fa-ir": "4.0.5",
     "@cspell/dict-sql": "2.2.1",
-    "@fullstacksjs/eslint-config": "13.8.1",
+    "@fullstacksjs/eslint-config": "13.8.2",
     "@rabits/tsconfig": "0.2.2",
-    "@types/node": "24.8.1",
+    "@types/node": "24.9.0",
     "cspell": "9.2.1",
     "drizzle-kit": "0.31.5",
     "eslint": "9.38.0",
-    "lint-staged": "16.2.4",
+    "lint-staged": "16.2.5",
     "prettier": "3.6.2",
     "simple-git-hooks": "2.13.1",
     "tsx": "4.20.6",
