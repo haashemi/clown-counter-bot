@@ -1,5 +1,7 @@
 import type { User } from "grammy/types";
 
+import { Command } from "@grammyjs/commands";
+
 import type { BotContext } from "@/lib/bot";
 
 import { clownVotesTable, db, groupsTable, usersTable } from "@/db";
@@ -51,7 +53,7 @@ async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boo
   return { allowed: false, waitMin };
 }
 
-export async function onClown(ctx: BotContext) {
+export async function clownHandler(ctx: BotContext) {
   const data = getData(ctx);
   if (!data) return;
 
@@ -105,3 +107,8 @@ export async function onClown(ctx: BotContext) {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
 }
+
+export const cmdClown = new Command<BotContext>("clown", "🤡 عه یه دلقک!").addToScope(
+  { type: "all_group_chats" },
+  clownHandler,
+);

@@ -1,10 +1,15 @@
+import { Command } from "@grammyjs/commands";
 import { count, desc, eq } from "drizzle-orm";
 
 import type { BotContext } from "@/lib/bot";
 
 import { clownVotesTable, db, usersTable } from "@/db";
 
-export async function onStats(ctx: BotContext) {
+async function privateStatsHandler(ctx: BotContext) {
+  return await ctx.reply("بزودی...");
+}
+
+async function groupStatsHandler(ctx: BotContext) {
   const message = ctx.message;
   if (!message) return;
 
@@ -31,3 +36,7 @@ export async function onStats(ctx: BotContext) {
     reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
   });
 }
+
+export const cmdStats = new Command<BotContext>("stats", "📊 آمار دلقک‌شماری")
+  .addToScope({ type: "all_private_chats" }, privateStatsHandler)
+  .addToScope({ type: "all_group_chats" }, groupStatsHandler);

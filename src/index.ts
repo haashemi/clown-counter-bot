@@ -1,34 +1,15 @@
-import { config } from "@/config";
 import { Bot } from "@/lib/bot";
-import { isGroup, isPrivate } from "@/middlewares";
+import { config } from "@/lib/config";
 
-import { onClown, onPrivacy, onSource, onStart, onStats } from "./handlers";
+import { commands } from "./commands";
+import { clownHandler } from "./commands/clown";
 
 const bot = new Bot(config.botToken);
 
-bot.command("start", isPrivate, onStart);
-bot.command("privacy", isPrivate, onPrivacy);
-bot.command("source", isPrivate, onSource);
+await commands.setCommands(bot);
 
-bot.command("clown", isGroup, onClown);
-bot.command("stats", isGroup, onStats);
-bot.hears(["🤡", "دلقک"], isGroup, onClown);
+bot.use(commands);
 
-await bot.api.setMyCommands(
-  [
-    { command: "start", description: "🎉 شروع دلقک بازی" },
-    { command: "privacy", description: "🔒 حریم شخصی" },
-    { command: "source", description: "🪄 سورس‌کد ربات" },
-  ],
-  { scope: { type: "all_private_chats" } },
-);
-
-await bot.api.setMyCommands(
-  [
-    { command: "clown", description: "🤡 دلقک یافت شد!" },
-    { command: "stats", description: "📊 لیست دلقک‌های برتر گروه" },
-  ],
-  { scope: { type: "all_group_chats" } },
-);
+bot.filter((ctx) => ["group", "supergroup"].includes(ctx.chat?.type ?? "")).hears(["🤡", "دلقک"], clownHandler);
 
 bot.start();

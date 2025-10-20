@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
-import { config } from "@/config";
+import { config } from "@/lib/config";
 
 export default defineConfig({
   dialect: "sqlite",

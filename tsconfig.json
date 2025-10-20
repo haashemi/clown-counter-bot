@@ -2,10 +2,8 @@
   "extends": ["@rabits/tsconfig/tsx"],
   "compilerOptions": {
     "paths": {
-      "@/config": ["./src/config/index.ts"],
       "@/db": ["./src/db/index.ts"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/middlewares": ["./src/middlewares/index.ts"]
+      "@/lib/*": ["./src/lib/*"]
     }
   }
 }
