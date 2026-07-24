@@ -8,6 +8,4 @@ onlyBuiltDependencies:
 
 packageManagerStrictVersion: true
 
-savePrefix: ''
-
-strictPeerDependencies: true
+savePrefix: ""

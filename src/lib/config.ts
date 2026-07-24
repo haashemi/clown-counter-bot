@@ -1,17 +1,18 @@
-import { Config } from "@fullstacksjs/config";
+import { createEnv } from "@t3-oss/env-core";
 import { env } from "node:process";
+import * as z from "zod";
 
-const schema = new Config({
-  /** Telegram Bot token */
-  botToken: Config.string().required(),
+export const config = createEnv({
+  server: {
+    /** Telegram Bot token */
+    BOT_TOKEN: z
+      .string()
+      .length(46)
+      .regex(/^\d{10}:.+/),
+    /** Database (SQLite) file path */
+    DB_FILE_PATH: z.string().startsWith("file:"),
+  },
 
-  /** Database (SQLite) file path */
-  dbFilePath: Config.string({ default: "file:database.sqlite" }),
+  runtimeEnv: env,
+  emptyStringAsUndefined: true,
 });
-
-export const config = schema
-  .parse({
-    botToken: env.BOT_TOKEN,
-    dbFilePath: env.DB_FILE_PATH,
-  })
-  .getAll();
