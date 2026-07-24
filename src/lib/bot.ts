@@ -25,6 +25,7 @@ export class Bot extends GrammyBot<BotContext> {
     logErr(`Error while handling update ${err.ctx.update.update_id}:`);
 
     const e = err.error;
+
     if (e instanceof GrammyError) {
       logErr("Error in request:", e.description);
     } else if (e instanceof HttpError) {
