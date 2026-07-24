@@ -6,9 +6,9 @@ import { config } from "@/lib/config";
 import * as schema from "./schema";
 
 export const db = drizzle({
-  client: createClient({ url: config.dbFilePath }),
+  client: createClient({ url: config.DB_FILE_PATH }),
   casing: "snake_case",
   schema,
 });
 
-export * from "./schema";
+export * as schema from "./schema";

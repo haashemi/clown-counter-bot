@@ -22,6 +22,13 @@
       "when": 1759329597208,
       "tag": "0002_overjoyed_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784926734791,
+      "tag": "0003_rich_ser_duncan",
+      "breakpoints": true
     }
   ]
 }

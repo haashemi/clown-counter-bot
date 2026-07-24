@@ -1,14 +1,14 @@
 import { relations } from "drizzle-orm";
 
-import { clownVotesTable, groupsTable, usersTable } from "./tables";
+import { clownVotes, groups, users } from "./tables";
 
-export const usersRelations = relations(usersTable, ({ many }) => ({
-  voted: many(clownVotesTable),
-  clowned: many(clownVotesTable),
+export const usersRelations = relations(users, ({ many }) => ({
+  voted: many(clownVotes),
+  clowned: many(clownVotes),
 }));
 
-export const clownVotesRelations = relations(clownVotesTable, ({ one }) => ({
-  group: one(groupsTable, { fields: [clownVotesTable.groupId], references: [groupsTable.tgId] }),
-  voter: one(usersTable, { fields: [clownVotesTable.voterId], references: [usersTable.tgId] }),
-  clown: one(usersTable, { fields: [clownVotesTable.clownId], references: [usersTable.tgId] }),
+export const clownVotesRelations = relations(clownVotes, ({ one }) => ({
+  group: one(groups, { fields: [clownVotes.groupId], references: [groups.id] }),
+  voter: one(users, { fields: [clownVotes.voterId], references: [users.id] }),
+  clown: one(users, { fields: [clownVotes.clownId], references: [users.id] }),
 }));

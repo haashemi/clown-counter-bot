@@ -1,29 +1,30 @@
 import * as t from "drizzle-orm/sqlite-core";
 
-export const usersTable = t.sqliteTable("users", {
-  tgId: t.int().notNull().primaryKey(),
+export const users = t.sqliteTable("users", {
+  id: t.int().notNull().primaryKey(),
   name: t.text().notNull(),
 });
 
-export const groupsTable = t.sqliteTable("groups", {
-  tgId: t.int().notNull().primaryKey(),
+export const groups = t.sqliteTable("groups", {
+  id: t.int().notNull().primaryKey(),
   name: t.text(),
+  gifId: t.text(),
+  stickerId: t.text(),
+  resetAt: t.int({ mode: "timestamp" }),
+  cooldown: t.int(),
 });
 
-export const clownVotesTable = t.sqliteTable("clown_votes", {
+export const clownVotes = t.sqliteTable("clown_votes", {
   id: t.int().primaryKey({ autoIncrement: true }),
-  groupId: t
-    .int()
-    .notNull()
-    .references(() => groupsTable.tgId),
-  voterId: t
-    .int()
-    .notNull()
-    .references(() => usersTable.tgId),
+  voterId: t.int().references(() => users.id),
   clownId: t
     .int()
     .notNull()
-    .references(() => usersTable.tgId),
+    .references(() => users.id),
+  groupId: t
+    .int()
+    .notNull()
+    .references(() => groups.id),
   votedAt: t
     .text()
     .notNull()
