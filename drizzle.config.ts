@@ -1,6 +1,5 @@
 import { defineConfig } from "drizzle-kit";
-
-import { config } from "@/lib/config";
+import { env } from "node:process";
 
 export default defineConfig({
   dialect: "sqlite",
@@ -8,5 +7,6 @@ export default defineConfig({
   schema: "./src/db/schema/",
   strict: true,
   casing: "snake_case",
-  dbCredentials: { url: config.dbFilePath },
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  dbCredentials: { url: env.DB_FILE_PATH! },
 });
