@@ -8,4 +8,5 @@ export * from "./handler";
 export * from "./middlewares";
 
 export const cmdClown = new Command<BotContext>("clown", "🤡 عه یه دلقک!") //
-  .addToScope({ type: "all_group_chats" }, clownHandler);
+  .addToScope({ type: "all_group_chats" }, clownHandler)
+  .addToScope({ type: "all_chat_administrators" }, clownHandler);

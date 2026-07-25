@@ -34,4 +34,5 @@ async function groupStatsHandler(ctx: BotContext) {
 }
 
 export const cmdStats = new Command<BotContext>("stats", "📊 آمار دلقک‌شماری") //
-  .addToScope({ type: "all_group_chats" }, groupStatsHandler);
+  .addToScope({ type: "all_group_chats" }, groupStatsHandler)
+  .addToScope({ type: "all_chat_administrators" }, groupStatsHandler);

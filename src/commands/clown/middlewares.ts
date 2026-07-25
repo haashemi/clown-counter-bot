@@ -18,7 +18,7 @@ export const isClownCall = async (ctx: BotContext, next: () => Promise<unknown>)
   });
 
   if (group) {
-    const isValidGif = ctx.msg.video?.file_id === group.gifId;
+    const isValidGif = ctx.msg.animation?.file_id === group.gifId;
     const isValidSticker = ctx.msg.sticker?.file_id === group.stickerId;
 
     if (isValidGif || isValidSticker) {

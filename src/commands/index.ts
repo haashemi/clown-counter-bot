@@ -2,8 +2,9 @@ import { CommandGroup } from "@grammyjs/commands";
 
 import type { BotContext } from "@/lib/bot";
 
+import { cmdSetGif } from "./admin/setgif";
+import { cmdSetSticker } from "./admin/setsticker";
 import { cmdClown } from "./clown";
-import { cmdMeta } from "./internal/meta";
 import { cmdStats } from "./public/stats";
 import { cmdPrivacy } from "./static/privacy";
 import { cmdSource } from "./static/source";
@@ -21,6 +22,7 @@ export const commands = new CommandGroup<BotContext>().add([
   // Public
   cmdStats,
 
-  // Internal
-  cmdMeta,
+  // Admin
+  cmdSetGif,
+  cmdSetSticker,
 ]);
