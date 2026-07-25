@@ -17,6 +17,9 @@ importers:
       '@grammyjs/i18n':
         specifier: 1.1.2
         version: 1.1.2(grammy@1.45.1)
+      '@grammyjs/runner':
+        specifier: 2.0.3
+        version: 2.0.3(grammy@1.45.1)
       '@libsql/client':
         specifier: 0.17.4
         version: 0.17.4
@@ -802,6 +805,12 @@ packages:
     engines: {node: '>=12'}
     peerDependencies:
       grammy: ^1.10.0
+
+  '@grammyjs/runner@2.0.3':
+    resolution: {integrity: sha512-nckmTs1dPWfVQteK9cxqxzE+0m1VRvluLWB8UgFzsjg62w3qthPJt0TYtJBEdG7OedvfQq4vnFAyE6iaMkR42A==}
+    engines: {node: '>=12.20.0 || >=14.13.1'}
+    peerDependencies:
+      grammy: ^1.13.1
 
   '@grammyjs/types@4.0.0':
     resolution: {integrity: sha512-Z8lDLTvOlo12e5Vnly/vQh3JC9ppaitS1dGZ3w068gNitOd/y8tTSiib+Xm38aBGbtYGmUZwOc6afYrLs2CSTg==}
@@ -3804,6 +3813,11 @@ snapshots:
       '@deno/shim-deno': 0.18.2
       '@fluent/bundle': 0.17.1
       '@fluent/langneg': 0.6.2
+      grammy: 1.45.1
+
+  '@grammyjs/runner@2.0.3(grammy@1.45.1)':
+    dependencies:
+      abort-controller: 3.0.0
       grammy: 1.45.1
 
   '@grammyjs/types@4.0.0': {}
