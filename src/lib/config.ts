@@ -9,7 +9,6 @@ export const config = createEnv({
       .string()
       .length(46)
       .regex(/^\d{10}:.+/),
-    BOT_SUPERUSER: z.coerce.number(),
     /** Database (SQLite) file path */
     DB_FILE_PATH: z.string().startsWith("file:"),
   },
