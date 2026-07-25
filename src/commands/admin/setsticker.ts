@@ -4,30 +4,32 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 
-// TODO: Update the texts
 async function setStickerHandler(ctx: BotContext) {
   const { msg } = ctx;
   if (!msg) return;
 
   if (!msg.reply_to_message)
-    return await ctx.reply("روی استیکر مورد نظر ریپلای کن و این دستور رو بزن تا به عنوان استیکر دلقک کننده ستش کنی.");
+    return await ctx.reply(ctx.t("cmd_setsticker"), {
+      reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
+    });
 
-  if (!msg.reply_to_message.sticker) return await ctx.reply("پیامی که روش ریپلای کردی استیکر نیست دلقک.");
+  if (!msg.reply_to_message.sticker)
+    return await ctx.reply(ctx.t("cmd_setsticker_invalid"), {
+      reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
+    });
 
   await db
     .insert(schema.groups)
-    .values({
-      id: msg.chat.id,
-      name: msg.chat.title,
-      stickerId: msg.reply_to_message.sticker.file_id,
-    })
+    .values({ id: msg.chat.id, name: msg.chat.title, stickerId: msg.reply_to_message.sticker.file_id })
     .onConflictDoUpdate({
       target: [schema.groups.id],
       set: { name: msg.chat.title, stickerId: msg.reply_to_message.sticker.file_id },
     });
 
-  return await ctx.reply("آقا عالی. استیکر جدید برای دلقک کردن ست شد!");
+  return await ctx.reply(ctx.t("cmd_setsticker_done"), {
+    reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
+  });
 }
 
-export const cmdSetSticker = new Command<BotContext>("setsticker", "ست کردن استیکر برای دلقک کردن") //
+export const cmdSetSticker = new Command<BotContext>("setsticker", "🛡 تنظیم استیکر دلقک کننده گروه") //
   .addToScope({ type: "all_chat_administrators" }, setStickerHandler);

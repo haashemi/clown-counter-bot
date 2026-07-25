@@ -11,13 +11,13 @@ import { cmdSource } from "./static/source";
 import { cmdStart } from "./static/start";
 
 export const commands = new CommandGroup<BotContext>().add([
-  // Magic
-  cmdClown,
-
   // Static
   cmdStart,
   cmdSource,
   cmdPrivacy,
+
+  // Magic
+  cmdClown,
 
   // Public
   cmdStats,
