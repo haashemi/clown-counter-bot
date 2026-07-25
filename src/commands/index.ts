@@ -3,16 +3,20 @@ import { CommandGroup } from "@grammyjs/commands";
 import type { BotContext } from "@/lib/bot";
 
 import { cmdClown } from "./clown";
+import { cmdStats } from "./public/stats";
 import { cmdPrivacy } from "./static/privacy";
 import { cmdSource } from "./static/source";
 import { cmdStart } from "./static/start";
-import { cmdStats } from "./stats";
 
 export const commands = new CommandGroup<BotContext>().add([
-  //
-  cmdStart,
+  // Magic
   cmdClown,
-  cmdStats,
+
+  // Static
+  cmdStart,
   cmdSource,
   cmdPrivacy,
+
+  // Public
+  cmdStats,
 ]);

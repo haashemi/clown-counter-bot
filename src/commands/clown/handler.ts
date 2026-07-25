@@ -1,10 +1,8 @@
 import type { User } from "grammy/types";
 
-import { Command } from "@grammyjs/commands";
-
 import type { BotContext } from "@/lib/bot";
 
-import { clownVotesTable, db, groupsTable, usersTable } from "@/db";
+import { db, schema } from "@/db";
 
 const CLOWN_DELAY = 10 * 60 * 1000;
 
@@ -32,7 +30,7 @@ function getData(ctx: BotContext): Data | null {
 }
 
 async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
-  const res = await db.query.clownVotesTable.findFirst({
+  const res = await db.query.clownVotes.findFirst({
     columns: { votedAt: true },
     where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
     orderBy: (f, o) => o.desc(f.votedAt),
@@ -77,27 +75,28 @@ export async function clownHandler(ctx: BotContext) {
   // Insert voter, clown, and the group concurrently.
   await Promise.all([
     db
-      .insert(usersTable)
-      .values({ tgId: voter.id, name: voter.name })
-      .onConflictDoUpdate({ target: usersTable.tgId, set: { name: voter.name } }),
+      .insert(schema.users)
+      .values({ id: voter.id, name: voter.name })
+      .onConflictDoUpdate({ target: schema.users.id, set: { name: voter.name } }),
     db
-      .insert(usersTable)
-      .values({ tgId: clown.id, name: clown.name })
-      .onConflictDoUpdate({ target: usersTable.tgId, set: { name: clown.name } }),
+      .insert(schema.users)
+      .values({ id: clown.id, name: clown.name })
+      .onConflictDoUpdate({ target: schema.users.id, set: { name: clown.name } }),
     db
-      .insert(groupsTable)
-      .values({ tgId: group.id, name: group.name })
-      .onConflictDoUpdate({ target: groupsTable.tgId, set: { name: group.name } }),
+      .insert(schema.groups)
+      .values({ id: group.id, name: group.name })
+      .onConflictDoUpdate({ target: schema.groups.id, set: { name: group.name } }),
   ]);
 
   const result = await canInsert(data);
+
   if (!result.allowed) {
     return await ctx.reply(ctx.t("cmd_clown_wait", { waitMin: result.waitMin }), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
 
-  await db.insert(clownVotesTable).values({
+  await db.insert(schema.clownVotes).values({
     groupId: group.id,
     voterId: voter.id,
     clownId: clown.id,
@@ -107,8 +106,3 @@ export async function clownHandler(ctx: BotContext) {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
 }
-
-export const cmdClown = new Command<BotContext>("clown", "🤡 عه یه دلقک!").addToScope(
-  { type: "all_group_chats" },
-  clownHandler,
-);
