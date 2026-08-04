@@ -4,7 +4,7 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 
-const CLOWN_DELAY = 10 * 60 * 1000;
+const DEFAULT_CLOWN_DELAY = 10 * 60 * 1000;
 
 interface Data {
   messageId: number;
@@ -29,12 +29,24 @@ function getData(ctx: BotContext): Data | null {
   };
 }
 
-async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
-  const res = await db.query.clownVotes.findFirst({
-    columns: { votedAt: true },
-    where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
-    orderBy: (f, o) => o.desc(f.votedAt),
+async function getGroupCooldown(groupId: number): Promise<number> {
+  const group = await db.query.groups.findFirst({
+    columns: { cooldown: true },
+    where: (f, o) => o.eq(f.id, groupId),
   });
+
+  return group?.cooldown ?? DEFAULT_CLOWN_DELAY;
+}
+
+async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
+  const [res, groupCooldown] = await Promise.all([
+    db.query.clownVotes.findFirst({
+      columns: { votedAt: true },
+      where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
+      orderBy: (f, o) => o.desc(f.votedAt),
+    }),
+    getGroupCooldown(id),
+  ]);
 
   if (!res) return { allowed: true, waitMin: 0 };
 
@@ -42,11 +54,11 @@ async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boo
   const last = new Date(res.votedAt).getTime();
   const diff = now - last;
 
-  if (diff > CLOWN_DELAY) {
+  if (diff > groupCooldown) {
     return { allowed: true, waitMin: 0 };
   }
 
-  const waitMin = Math.ceil((CLOWN_DELAY - diff) / 1000 / 60);
+  const waitMin = Math.ceil((groupCooldown - diff) / 1000 / 60);
 
   return { allowed: false, waitMin };
 }

@@ -85,3 +85,23 @@ cmd_setsticker_invalid =
 
 cmd_setsticker_done =
     👀 استیکر جدید برای دلقک کردن تنظیم شد.
+
+cmd_setclowndelay_usage =
+    ⏱ تنظیم زمان انتظار دلقک
+
+    بعد از دلقک کردن، چند دقیقه باید صبر کنی تا دوباره بتونی دلقک کنی؟
+
+    💡 استفاده: /setclowndelay <دقیقه>
+    📌 محدوده: ۵ تا ۶۰ دقیقه
+    📍 مقدار پیش‌فرض: ۱۰ دقیقه
+
+cmd_setclowndelay_invalid_number =
+    😐 عددی که وارد کردی معتبر نیست.
+
+    یه عدد صحیح وارد کن.
+
+cmd_setclowndelay_out_of_range =
+    😐 عدد باید بین { $min } تا { $max } دقیقه باشه.
+
+cmd_setclowndelay_done =
+    ✅ زمان انتظار دلقک روی { $minutes } دقیقه تنظیم شد.
