@@ -2,7 +2,7 @@ import { CommandGroup } from "@grammyjs/commands";
 
 import type { BotContext } from "@/lib/bot";
 
-import { cmdSetClownDelay } from "./admin/setclowndelay";
+import { cmdSetCooldown } from "./admin/setcooldown";
 import { cmdSetGif } from "./admin/setgif";
 import { cmdSetSticker } from "./admin/setsticker";
 import { cmdClown } from "./clown";
@@ -26,5 +26,5 @@ export const commands = new CommandGroup<BotContext>().add([
   // Admin
   cmdSetGif,
   cmdSetSticker,
-  cmdSetClownDelay,
+  cmdSetCooldown,
 ]);

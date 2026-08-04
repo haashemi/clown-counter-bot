@@ -4,17 +4,17 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 
-const MIN_DELAY = 5;
-const MAX_DELAY = 60;
+const MIN_COOLDOWN = 5;
+const MAX_COOLDOWN = 60;
 
-async function setClownDelayHandler(ctx: BotContext) {
+async function setCooldownHandler(ctx: BotContext) {
   const { msg } = ctx;
   if (!msg) return;
 
   const args = msg.text?.split(/\s+/).slice(1).join(" ").trim();
 
   if (!args) {
-    return await ctx.reply(ctx.t("cmd_setclowndelay_usage"), {
+    return await ctx.reply(ctx.t("cmd_setcooldown_usage"), {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
   }
@@ -22,13 +22,13 @@ async function setClownDelayHandler(ctx: BotContext) {
   const minutes = Number(args);
 
   if (Number.isNaN(minutes) || !Number.isInteger(minutes)) {
-    return await ctx.reply(ctx.t("cmd_setclowndelay_invalid_number"), {
+    return await ctx.reply(ctx.t("cmd_setcooldown_invalid_number"), {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
   }
 
-  if (minutes < MIN_DELAY || minutes > MAX_DELAY) {
-    return await ctx.reply(ctx.t("cmd_setclowndelay_out_of_range", { min: MIN_DELAY, max: MAX_DELAY }), {
+  if (minutes < MIN_COOLDOWN || minutes > MAX_COOLDOWN) {
+    return await ctx.reply(ctx.t("cmd_setcooldown_out_of_range", { min: MIN_COOLDOWN, max: MAX_COOLDOWN }), {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
   }
@@ -43,10 +43,10 @@ async function setClownDelayHandler(ctx: BotContext) {
       set: { name: msg.chat.title, cooldown: cooldownMs },
     });
 
-  return await ctx.reply(ctx.t("cmd_setclowndelay_done", { minutes }), {
+  return await ctx.reply(ctx.t("cmd_setcooldown_done", { minutes }), {
     reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
   });
 }
 
-export const cmdSetClownDelay = new Command<BotContext>("setclowndelay", "⏱ تنظیم زمان انتظار دلقک") //
-  .addToScope({ type: "all_chat_administrators" }, setClownDelayHandler);
+export const cmdSetCooldown = new Command<BotContext>("setcooldown", "⏱ تنظیم زمان انتظار دلقک") //
+  .addToScope({ type: "all_chat_administrators" }, setCooldownHandler);

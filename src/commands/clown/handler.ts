@@ -4,7 +4,7 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 
-const DEFAULT_CLOWN_DELAY = 10 * 60 * 1000;
+const DEFAULT_COOLDOWN = 10 * 60 * 1000;
 
 interface Data {
   messageId: number;
@@ -35,7 +35,7 @@ async function getGroupCooldown(groupId: number): Promise<number> {
     where: (f, o) => o.eq(f.id, groupId),
   });
 
-  return group?.cooldown ?? DEFAULT_CLOWN_DELAY;
+  return group?.cooldown ?? DEFAULT_COOLDOWN;
 }
 
 async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
