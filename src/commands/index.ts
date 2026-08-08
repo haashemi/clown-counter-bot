@@ -2,6 +2,8 @@ import { CommandGroup } from "@grammyjs/commands";
 
 import type { BotContext } from "@/lib/bot";
 
+import { cmdRemoveGif } from "./admin/removegif";
+import { cmdRemoveSticker } from "./admin/removesticker";
 import { cmdSetCooldown } from "./admin/setcooldown";
 import { cmdSetGif } from "./admin/setgif";
 import { cmdSetSticker } from "./admin/setsticker";
@@ -25,6 +27,8 @@ export const commands = new CommandGroup<BotContext>().add([
 
   // Admin
   cmdSetGif,
+  cmdRemoveGif,
   cmdSetSticker,
+  cmdRemoveSticker,
   cmdSetCooldown,
 ]);

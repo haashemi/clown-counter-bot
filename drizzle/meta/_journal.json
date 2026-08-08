@@ -29,6 +29,13 @@
       "when": 1784926734791,
       "tag": "0003_rich_ser_duncan",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784930000000,
+      "tag": "0004_multi_gif_sticker",
+      "breakpoints": true
     }
   ]
 }
