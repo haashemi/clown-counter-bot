@@ -8,8 +8,8 @@ export const users = t.sqliteTable("users", {
 export const groups = t.sqliteTable("groups", {
   id: t.int().notNull().primaryKey(),
   name: t.text(),
-  gifId: t.text(),
-  stickerId: t.text(),
+  gifIds: t.text(),
+  stickerIds: t.text(),
   resetAt: t.int({ mode: "timestamp" }),
   cooldown: t.int(),
 });
