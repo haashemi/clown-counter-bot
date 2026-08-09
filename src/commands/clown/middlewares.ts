@@ -1,6 +1,7 @@
 import type { BotContext } from "@/lib/bot";
 
 import { db } from "@/db";
+import { parseFileId } from "@/lib/parse-file-id";
 import { parseFileIds } from "@/lib/utils";
 
 const clownTexts = ["🤡", "دلقک"];
@@ -22,8 +23,10 @@ export const isClownCall = async (ctx: BotContext, next: () => Promise<unknown>)
     const gifIds = parseFileIds(group.gifIds);
     const stickerIds = parseFileIds(group.stickerIds);
 
-    const isValidGif = ctx.msg.animation?.file_id && gifIds.includes(ctx.msg.animation.file_id);
-    const isValidSticker = ctx.msg.sticker?.file_id && stickerIds.includes(ctx.msg.sticker.file_id);
+    const isValidGif =
+      ctx.msg.animation?.file_id && gifIds.includes(parseFileId(ctx.msg.animation.file_id).id.toString());
+    const isValidSticker =
+      ctx.msg.sticker?.file_id && stickerIds.includes(parseFileId(ctx.msg.sticker.file_id).id.toString());
 
     if (isValidGif || isValidSticker) {
       return await next();

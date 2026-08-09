@@ -3,6 +3,7 @@ import { Command } from "@grammyjs/commands";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
+import { parseFileId } from "@/lib/parse-file-id";
 import { parseFileIds } from "@/lib/utils";
 
 const MAX_STICKERS = 3;
@@ -33,7 +34,7 @@ async function setStickerHandler(ctx: BotContext) {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
 
-  const newId = msg.reply_to_message.sticker.file_id;
+  const newId = parseFileId(msg.reply_to_message.sticker.file_id).id.toString();
   const updated = [...existing, newId];
 
   await db
