@@ -23,10 +23,9 @@ The whole purpose of this bot is to increase a "How clown they are" near the nam
 
 ## Self Host
 
-This bot is nothing but a Node.js application. Just install `Node.JS` and `PNPM`, update the `.env` variables (use `.env.example` as an example), then run these commands:
+This bot is written in Go and uses [tgo](https://github.com/haashemi/tgo) as its Telegram framework and [GORM](https://gorm.io) for the database. Just install `Go`, update the `.env` variables (use `.env.example` as an example), then run these commands:
 
 ```sh
-pnpm install
-pnpm db:migrate
-pnpm start
+go build
+./clown-counter-bot
 ```

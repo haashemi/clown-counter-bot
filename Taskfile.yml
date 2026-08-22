@@ -1,0 +1,54 @@
+# https://taskfile.dev
+version: "3"
+
+vars:
+  BINARY: clown-counter-bot
+
+tasks:
+  default:
+    desc: Lint, test, build and compress the binary
+    deps:
+      - lint
+      - test
+      - upx
+
+  build:
+    desc: Build the most optimized static binary
+    cmds:
+      - go build -trimpath -buildvcs=false -ldflags "-s -w" -o {{.BINARY}} .
+    env:
+      CGO_ENABLED: "0"
+
+  upx:
+    desc: Compress the built binary with UPX (best compression)
+    deps:
+      - build
+    cmds:
+      - upx --best --lzma {{.BINARY}}
+
+  release:
+    desc: Build and compress the binary, then show the final size
+    deps:
+      - upx
+    cmds:
+      - ls -lh {{.BINARY}}
+
+  lint:
+    desc: Lint the whole project with golangci-lint-v2
+    cmds:
+      - golangci-lint-v2 run
+
+  fmt:
+    desc: Format the whole project with the configured golangci-lint-v2 formatters
+    cmds:
+      - golangci-lint-v2 fmt
+
+  test:
+    desc: Run the test suite
+    cmds:
+      - go test ./...
+
+  clean:
+    desc: Remove the built binary
+    cmds:
+      - rm -f {{.BINARY}}
