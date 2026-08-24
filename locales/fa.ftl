@@ -55,9 +55,11 @@ cmd_stats_no_clown =
 cmd_stats_group =
     🔥 دلقک‌های برتر گروه
 
-    { $clowns }
+    { $clowns }{ $reset }
 
 cmd_stats_group_clown = {"\u200F"}— { $name } با { $votes } رای
+
+cmd_stats_reset_at = 🕐 آمار از { $date } شمرده می‌شود.
 
 # Admin commands
 cmd_setgif =
@@ -155,3 +157,23 @@ cmd_setcooldown_out_of_range =
 
 cmd_setcooldown_done =
     ✅ زمان انتظار دلقک روی { $minutes } دقیقه تنظیم شد.
+
+cmd_resetstats_confirm =
+    ⚠️ ریست آمار گروه
+
+    همه‌ی آمار دلقک‌ها از این لحظه ریست می‌شه و شمارش از صفر شروع می‌شه.
+    مطمئنی؟
+
+cmd_resetstats_confirm_yes = ✅ بله، ریست کن
+cmd_resetstats_confirm_no = ❌ نه، منصرف شدم
+
+cmd_resetstats_done =
+    ✅ آمار گروه با موفقیت ریست شد!
+
+    از این به بعد دلقک‌ها از همین لحظه شمرده می‌شن.
+
+cmd_resetstats_cancelled =
+    🤝 عملیات ریست لغو شد، آمار دست‌نخورده موند.
+
+cmd_resetstats_not_admin =
+    😐 فقط ادمین‌ها می‌تونن آمار رو ریست کنن.
