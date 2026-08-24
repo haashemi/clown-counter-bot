@@ -1,3 +1,8 @@
+allowBuilds:
+  esbuild: true
+  simple-git-hooks: true
+  unrs-resolver: true
+
 engineStrict: true
 
 onlyBuiltDependencies:
