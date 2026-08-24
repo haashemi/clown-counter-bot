@@ -13,14 +13,16 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 - `pnpm dev` — run TS directly from `src/index.ts` (tsx, loads `.env`).
 - `pnpm start` — run the built bundle from `dist/index.js`.
-- `pnpm build` — `tsdown` bundles everything into one `dist/index.js` (alwaysBundle; only Node built-ins external, target node22).
+- `pnpm build` — `tsdown` bundles everything into one `dist/index.js` (alwaysBundle; only Node built-ins external, target node22), then copies `drizzle/` into `dist/drizzle/` so migrations ship with the bundle.
+- `pnpm start` — run the built bundle from `dist/index.js`.
+- `pnpm archive` — zip `dist/index.js`, `dist/drizzle/*`, and `.env.example` into `dist.zip` (requires the `zip` CLI).
 - `pnpm lint` — `eslint . --fix`.
-- DB: `pnpm db:generate` (after schema changes) → `pnpm db:migrate` → `pnpm start`.
+- DB: schema changes → `pnpm db:generate` → `pnpm db:migrate` (migrations in `drizzle/`). Migrations also run automatically at startup via `src/db/migrate.ts` (`runMigrations`, called from `src/index.ts`), so a fresh DB is migrated without a manual step.
 - `pnpm prepare` — install git hooks + commit template (one-time setup).
 
 ## Conventions (must-follow)
 
-- Import via path aliases: `@/lib/*` → `src/lib/*`, `@/db` → `src/db/index.ts`. Never relative imports.
+- Import via path aliases: `@/lib/*` → `src/lib/*`, `@/db` → `src/db/index.ts`, `@/db/*` → `src/db/*`. Never relative imports.
 - i18n strings live in `locales/fa.ftl` (Fluent), default locale `fa`. Access via `ctx.t("key", { vars })`. Always add the key when adding user-facing text.
 - Bot must be constructed as `new Bot(config.BOT_TOKEN)` from `@/lib/bot` (BotContext = Context & I18nFlavor). The bot runner is set up in `src/index.ts` (filters group/supergroup messages, `isClownCall` middleware).
 - Commands use `@grammyjs/commands` `Command`/`CommandGroup`, registered in `src/commands/index.ts`. Each command is a `new Command<BotContext>("name", "fa desc").addToScope(...)` in its own file.

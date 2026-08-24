@@ -5,9 +5,10 @@
   "packageManager": "pnpm@11.21.0",
   "scripts": {
     "dev": "node --env-file-if-exists=.env --import=tsx --watch src/index.ts",
-    "build": "tsdown",
+    "build": "tsdown && cp -r drizzle dist/drizzle",
     "start": "node --env-file-if-exists=.env dist/index.js",
     "lint": "eslint . --fix",
+    "archive": "rm dist.zip && zip -r dist.zip dist/index.js dist/drizzle .env.example",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
