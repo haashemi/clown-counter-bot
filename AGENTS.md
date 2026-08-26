@@ -4,21 +4,21 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 ## Stack
 
-- Node 22, TypeScript, package manager is **pnpm** (never plain `npm`).
+- Node 22, TypeScript, package manager is **vpr** (never plain `npm`).
 - Bot: `grammy` + `@grammyjs/{commands,i18n,runner,auto-retry}`.
-- DB: SQLite via `drizzle-orm` + `@libsql/client`.
+- DB: PostgreSQL via `drizzle-orm` + `pg` (node-postgres pool, `max: 5`).
 - Env: `@t3-oss/env-core` + `zod`.
 
 ## Commands
 
-- `pnpm dev` — run TS directly from `src/index.ts` via `vite-node -w` (watch mode). `.env` is loaded by `src/lib/config.ts`, not a node flag.
-- `pnpm build` — `vp pack` bundles everything into one `dist/index.js` (alwaysBundle; only Node built-ins external, target node22) and copies `drizzle/` and `locales/` into `dist/` via the `pack.copy` block.
-- `pnpm start` — run the built `dist/index.js` file.
-- `pnpm archive` — zip all `dist/` content plus `.env.example` into `dist.zip` (requires the `zip` CLI).
-- `pnpm lint` — `vp lint --fix`.
-- `pnpm check` — `vp check` (format + lint + typecheck).
-- DB: schema changes → `pnpm db:generate` → `pnpm db:migrate` (migrations in `drizzle/`). Migrations also run automatically at startup via `src/db/migrate.ts` (`runMigrations`, called from `src/index.ts` _before_ `setCommands`), so a fresh DB is migrated without a manual step.
-- `pnpm prepare` — install the vite-plus git-hook dispatcher (`vp hooks enable`, one-time setup).
+- `vpr dev` — run TS directly from `src/index.ts` via `vite-node -w` (watch mode). `.env` is loaded by `src/lib/config.ts`, not a node flag.
+- `vpr build` — `vp pack` bundles everything into one `dist/index.js` (alwaysBundle; only Node built-ins external, target node22) and copies `drizzle/` and `locales/` into `dist/` via the `pack.copy` block.
+- `vpr start` — run the built `dist/index.js` file.
+- `vpr archive` — zip all `dist/` content plus `.env.example` into `dist.zip` (requires the `zip` CLI).
+- `vpr lint` — `vp lint --fix`.
+- `vpr check` — `vp check` (format + lint + typecheck).
+- DB: schema changes → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). Migrations also run automatically at startup via `src/db/migrate.ts` (`runMigrations`, called from `src/index.ts` _before_ `setCommands`), so a fresh DB is migrated without a manual step.
+- `vpr prepare` — install the vite-plus git-hook dispatcher (`vp hooks enable`, one-time setup).
 
 ## Conventions (must-follow)
 
@@ -29,24 +29,26 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 ## Config & env
 
-- `.env` is required at runtime, loaded from CWD by `src/lib/config.ts` (`process.loadEnvFile`) — real env vars take precedence. `BOT_TOKEN` (46 chars, `^\d{10}:.+`) and `DB_FILE_PATH` (must start with `file:`, e.g. `file:database.sqlite`) are zod-validated at startup. Copy `.env.example`.
+- `.env` is required at runtime, loaded from CWD by `src/lib/config.ts` (`process.loadEnvFile`) — real env vars take precedence. `BOT_TOKEN` (46 chars, `^\d{10}:.+`) and `DATABASE_URL` (must match `^postgres(ql)?://`) are validated at startup. Copy `.env.example`.
 - `.env*` is gitignored (except `.env.example`).
 
 ## DB schema
 
 - Tables in `src/db/schema/tables.ts` (`users`, `groups`, `clownVotes`), relations in `relations.ts`.
-- The libsql client is created in `src/db/index.ts`; export `db` and `schema` from `@/db`.
-- Schema changes: edit tables → `pnpm db:generate` → `pnpm db:migrate` (migrations in `drizzle/`). `casing: "snake_case"` is enforced in both drizzle and the db client.
+- IDs are `bigint` (`mode: "number"`) — Telegram chat/user ids exceed int32. `clownVotes.id` is an identity column. Timestamps are `timestamptz`; `gifIds`/`stickerIds` are `jsonb` string arrays.
+- The pg client is created in `src/db/index.ts`; export `db` and `schema` from `@/db`.
+- Schema changes: edit tables → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). `casing: "snake_case"` is enforced in both drizzle and the db client.
+- Legacy SQLite → PostgreSQL data migration: `scripts/sqlite-to-psql.sh <sqlite.db> <postgres-url>` (target schema must exist first).
 
 ## Git / commit
 
-- Conventional Commits enforced on commit (`commitlint`); the vite-plus hook dispatcher (`vp hooks`, installed by `pnpm prepare`) runs the project hooks in `.vite-hooks/` — `pre-commit` runs `vp staged` (staged-file checks from the `staged` block in `vite.config.ts`), `commit-msg` runs `commitlint`. Stage only intended files.
+- Conventional Commits enforced on commit (`commitlint`); the vite-plus hook dispatcher (`vp hooks`, installed by `vpr prepare`) runs the project hooks in `.vite-hooks/` — `pre-commit` runs `vp staged` (staged-file checks from the `staged` block in `vite.config.ts`), `commit-msg` runs `commitlint`. Stage only intended files.
 
 ## Gotchas
 
-- The single-file bundle (`pnpm build`) keeps the `libsql` family external (see `pack.deps.alwaysBundle` in `vite.config.ts`) — its native binding (`@libsql/linux-x64-gnu` etc.) can't be inlined, so `node_modules` must ship with the deployment.
+- The single-file bundle (`vpr build`) keeps the `pg` family external (see `pack.deps.alwaysBundle` in `vite.config.ts`) — its submodules/optional native binding (`pg-native`) can't be inlined, so `node_modules` must ship with the deployment.
 - `drizzle-kit generate` writes a migration snapshot into `drizzle/`; review it.
-- `groups.gifIds` / `stickerIds` store JSON arrays of numeric file-id (parse via `parseFileId(...).id.toString()`), not raw Telegram file_ids — see `src/lib/parse-file-id.ts` and `src/lib/utils.ts`.
+- `groups.gifIds` / `stickerIds` are `jsonb` arrays of numeric file-id strings (parse via `parseFileId(...).id.toString()`), not raw Telegram file_ids — see `src/lib/parse-file-id.ts`.
 - `isClownCall` triggers on literal `🤡` / `دلقک` text OR a group-configured gif/sticker.
 - Cooldown stored in ms on `groups.cooldown`; default 10 min in `src/commands/clown/handler.ts`.
 

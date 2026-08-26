@@ -4,7 +4,6 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 import { parseFileId } from "@/lib/parse-file-id";
-import { parseFileIds } from "@/lib/utils";
 
 const MAX_STICKERS = 3;
 
@@ -27,7 +26,7 @@ async function setStickerHandler(ctx: BotContext) {
     where: (f, o) => o.eq(f.id, msg.chat.id),
   });
 
-  const existing = parseFileIds(group?.stickerIds ?? null);
+  const existing = group?.stickerIds ?? [];
 
   if (existing.length >= MAX_STICKERS)
     return await ctx.reply(ctx.t("cmd_setsticker_limit"), {
@@ -39,10 +38,10 @@ async function setStickerHandler(ctx: BotContext) {
 
   await db
     .insert(schema.groups)
-    .values({ id: msg.chat.id, name: msg.chat.title, stickerIds: JSON.stringify(updated) })
+    .values({ id: msg.chat.id, name: msg.chat.title, stickerIds: updated })
     .onConflictDoUpdate({
       target: [schema.groups.id],
-      set: { name: msg.chat.title, stickerIds: JSON.stringify(updated) },
+      set: { name: msg.chat.title, stickerIds: updated },
     });
 
   return await ctx.reply(ctx.t("cmd_setsticker_done", { count: updated.length, max: MAX_STICKERS }), {

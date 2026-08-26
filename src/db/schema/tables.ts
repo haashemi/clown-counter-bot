@@ -1,32 +1,36 @@
-import * as t from "drizzle-orm/sqlite-core";
+import * as t from "drizzle-orm/pg-core";
 
-export const users = t.sqliteTable("users", {
-  id: t.int().notNull().primaryKey(),
+export const users = t.pgTable("users", {
+  id: t.bigint({ mode: "number" }).notNull().primaryKey(),
   name: t.text().notNull(),
 });
 
-export const groups = t.sqliteTable("groups", {
-  id: t.int().notNull().primaryKey(),
+export const groups = t.pgTable("groups", {
+  id: t.bigint({ mode: "number" }).notNull().primaryKey(),
   name: t.text(),
-  gifIds: t.text(),
-  stickerIds: t.text(),
-  resetAt: t.int({ mode: "timestamp" }),
-  cooldown: t.int(),
+  gifIds: t.jsonb().$type<string[]>(),
+  stickerIds: t.jsonb().$type<string[]>(),
+  resetAt: t.timestamp({ withTimezone: true, mode: "date" }),
+  cooldown: t.integer(),
 });
 
-export const clownVotes = t.sqliteTable("clown_votes", {
-  id: t.int().primaryKey({ autoIncrement: true }),
-  voterId: t.int().references(() => users.id),
-  clownId: t
-    .int()
-    .notNull()
-    .references(() => users.id),
-  groupId: t
-    .int()
-    .notNull()
-    .references(() => groups.id),
-  votedAt: t
-    .text()
-    .notNull()
-    .$default(() => new Date().toISOString()),
-});
+export const clownVotes = t.pgTable(
+  "clown_votes",
+  {
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    voterId: t.bigint({ mode: "number" }).references(() => users.id),
+    clownId: t
+      .bigint({ mode: "number" })
+      .notNull()
+      .references(() => users.id),
+    groupId: t
+      .bigint({ mode: "number" })
+      .notNull()
+      .references(() => groups.id),
+    votedAt: t.timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [
+    t.index("clown_votes_group_voter_idx").on(table.groupId, table.voterId, table.votedAt),
+    t.index("clown_votes_group_idx").on(table.groupId),
+  ],
+);

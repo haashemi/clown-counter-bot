@@ -26,10 +26,7 @@ export default defineConfig({
     dts: false,
     outExtensions: () => ({ js: ".js" }),
     deps: {
-      // Bundle everything into one self-contained artifact, keeping only Node's built-ins
-      // and the libsql family external — its native binding (@libsql/linux-x64-gnu etc.)
-      // cannot be inlined and must be resolved from node_modules.
-      alwaysBundle: (id) => !/^(@libsql\/|libsql$)/.test(id),
+      alwaysBundle: [/.*/],
       onlyBundle: false,
     },
     copy: [{ from: "drizzle" }, { from: "locales" }],

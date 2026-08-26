@@ -1,5 +1,7 @@
 import type { User } from "grammy/types";
 
+import { sql } from "drizzle-orm";
+
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
@@ -51,7 +53,7 @@ async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boo
   if (!res) return { allowed: true, waitMin: 0 };
 
   const now = Date.now();
-  const last = new Date(res.votedAt).getTime();
+  const last = res.votedAt.getTime();
   const diff = now - last;
 
   if (diff > groupCooldown) {
@@ -84,16 +86,15 @@ export async function clownHandler(ctx: BotContext) {
   }
 
   // TODO: There has to be a better way...
-  // Insert voter, clown, and the group concurrently.
+  // Upsert both users in one statement, and the group concurrently.
   await Promise.all([
     db
       .insert(schema.users)
-      .values({ id: voter.id, name: voter.name })
-      .onConflictDoUpdate({ target: schema.users.id, set: { name: voter.name } }),
-    db
-      .insert(schema.users)
-      .values({ id: clown.id, name: clown.name })
-      .onConflictDoUpdate({ target: schema.users.id, set: { name: clown.name } }),
+      .values([
+        { id: voter.id, name: voter.name },
+        { id: clown.id, name: clown.name },
+      ])
+      .onConflictDoUpdate({ target: schema.users.id, set: { name: sql`excluded.name` } }),
     db
       .insert(schema.groups)
       .values({ id: group.id, name: group.name })

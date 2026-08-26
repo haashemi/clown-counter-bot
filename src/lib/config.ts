@@ -6,8 +6,8 @@ import { findAvailablePath } from "./utils";
 export interface Config {
   /** Telegram Bot token */
   BOT_TOKEN: string;
-  /** Database (SQLite) file path */
-  DB_FILE_PATH: string;
+  /** PostgreSQL connection string */
+  DATABASE_URL: string;
 }
 
 async function loadEnv(): Promise<void> {
@@ -20,15 +20,15 @@ async function loadConfig(): Promise<Config> {
 
   const config: Config = {
     BOT_TOKEN: env["BOT_TOKEN"] ?? "",
-    DB_FILE_PATH: env["DB_FILE_PATH"] ?? "",
+    DATABASE_URL: env["DATABASE_URL"] ?? "",
   };
 
   if (!config.BOT_TOKEN || config.BOT_TOKEN.length !== 46 || !/^\d{10}:.+/.test(config.BOT_TOKEN)) {
     throw new Error("Invalid BOT_TOKEN: expected 46 chars matching /^\\d{10}:.+/");
   }
 
-  if (!config.DB_FILE_PATH || !config.DB_FILE_PATH.startsWith("file:")) {
-    throw new Error("Invalid DB_FILE_PATH: must start with 'file:'");
+  if (!config.DATABASE_URL || !/^postgres(ql)?:\/\/\S+/.test(config.DATABASE_URL)) {
+    throw new Error("Invalid DATABASE_URL: expected a postgres:// or postgresql:// connection string");
   }
 
   return config;

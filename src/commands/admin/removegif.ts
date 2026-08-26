@@ -3,7 +3,6 @@ import { Command } from "@grammyjs/commands";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
-import { parseFileIds } from "@/lib/utils";
 
 async function removeGifHandler(ctx: BotContext) {
   const { msg } = ctx;
@@ -24,7 +23,7 @@ async function removeGifHandler(ctx: BotContext) {
     where: (f, o) => o.eq(f.id, msg.chat.id),
   });
 
-  const existing = parseFileIds(group?.gifIds ?? null);
+  const existing = group?.gifIds ?? [];
 
   if (existing.length === 0)
     return await ctx.reply(ctx.t("cmd_removegif_empty"), {
@@ -40,7 +39,7 @@ async function removeGifHandler(ctx: BotContext) {
     });
 
   const updated = existing.filter((id) => id !== fileId);
-  const newValue = updated.length > 0 ? JSON.stringify(updated) : null;
+  const newValue = updated.length > 0 ? updated : null;
 
   await db
     .insert(schema.groups)

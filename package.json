@@ -20,9 +20,9 @@
     "@grammyjs/commands": "1.4.0",
     "@grammyjs/i18n": "1.1.2",
     "@grammyjs/runner": "2.0.3",
-    "@libsql/client": "0.17.4",
     "drizzle-orm": "0.45.2",
-    "grammy": "1.45.1"
+    "grammy": "1.45.1",
+    "pg": "8.23.0"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.2",
@@ -30,6 +30,7 @@
     "@commitlint/types": "21.2.0",
     "@rabits/tsconfig": "0.2.2",
     "@types/node": "26.2.0",
+    "@types/pg": "8.23.1",
     "drizzle-kit": "0.31.10",
     "typescript": "6.0.3",
     "vite-node": "6.0.0",

@@ -19,7 +19,7 @@ async function groupStatsHandler(ctx: BotContext) {
   const conditions = [eq(schema.clownVotes.groupId, message.chat.id)];
 
   if (group?.resetAt) {
-    conditions.push(gte(schema.clownVotes.votedAt, new Date(group.resetAt).toISOString()));
+    conditions.push(gte(schema.clownVotes.votedAt, group.resetAt));
   }
 
   const clowns = await db

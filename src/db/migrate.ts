@@ -1,4 +1,4 @@
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { join } from "node:path";
 
 import { db } from "@/db";
