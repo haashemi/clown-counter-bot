@@ -1,14 +1,14 @@
 import { run } from "@grammyjs/runner";
 
 import { runMigrations } from "@/db";
-import { Bot } from "@/lib/bot";
+import { Bot, getLocalesDirectory } from "@/lib/bot";
 import { config } from "@/lib/config";
 
 import { commands } from "./commands";
 import { confirmResetStats, denyResetStats } from "./commands/admin/resetstats";
 import { clownHandler, isClownCall } from "./commands/clown";
 
-const bot = new Bot(config.BOT_TOKEN);
+const bot = new Bot(config.BOT_TOKEN, await getLocalesDirectory());
 
 bot.use(commands);
 
@@ -21,9 +21,9 @@ bot
   .callbackQuery("resetstats:yes", confirmResetStats)
   .callbackQuery("resetstats:no", denyResetStats);
 
-await commands.setCommands(bot);
-
 await runMigrations();
+
+await commands.setCommands(bot);
 
 run(bot, {
   runner: { fetch: { allowed_updates: ["message", "callback_query"] } },

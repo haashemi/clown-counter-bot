@@ -4,14 +4,27 @@ import type { Context, ErrorHandler } from "grammy";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { I18n } from "@grammyjs/i18n";
 import { Bot as GrammyBot, GrammyError, HttpError } from "grammy";
+import { join } from "node:path";
+
+import { findAvailablePath } from "./utils";
 
 export type BotContext = Context & I18nFlavor;
 
+export async function getLocalesDirectory(): Promise<string> {
+  const availablePath = await findAvailablePath([
+    join(import.meta.dirname, "locales"),
+    join(process.cwd(), "locales"), //
+  ]);
+  if (availablePath) return availablePath;
+
+  throw new Error(`Locales directory not found.`);
+}
+
 export class Bot extends GrammyBot<BotContext> {
-  constructor(token: string) {
+  constructor(token: string, localesDirectory: string) {
     super(token);
 
-    const i18n = new I18n<BotContext>({ defaultLocale: "fa", directory: "locales" });
+    const i18n = new I18n<BotContext>({ defaultLocale: "fa", directory: localesDirectory });
 
     this.use(i18n);
 

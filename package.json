@@ -2,18 +2,18 @@
   "name": "clown-counter-bot",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.21.0",
   "scripts": {
-    "dev": "node --env-file-if-exists=.env --import=tsx --watch src/index.ts",
-    "build": "tsdown && cp -r drizzle dist/drizzle",
-    "start": "node --env-file-if-exists=.env dist/index.js",
-    "lint": "eslint . --fix",
-    "archive": "rm dist.zip && zip -r dist.zip dist/index.js dist/drizzle .env.example",
+    "dev": "vite-node -w src/index.ts",
+    "build": "vp pack",
+    "start": "node dist/index.js",
+    "lint": "vp lint --fix",
+    "check": "vp check",
+    "archive": "rm -f dist.zip && zip -r dist.zip dist .env.example",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
-    "prepare": "simple-git-hooks && git config --local commit.template '.gitmessage'"
+    "prepare": "vp hooks enable"
   },
   "dependencies": {
     "@grammyjs/auto-retry": "2.0.2",
@@ -28,16 +28,12 @@
     "@commitlint/cli": "21.2.2",
     "@commitlint/config-conventional": "21.2.2",
     "@commitlint/types": "21.2.0",
-    "@fullstacksjs/eslint-config": "14.8.0",
     "@rabits/tsconfig": "0.2.2",
     "@types/node": "26.2.0",
     "drizzle-kit": "0.31.10",
-    "eslint": "10.9.0",
-    "lint-staged": "17.3.0",
-    "prettier": "3.9.6",
-    "simple-git-hooks": "2.13.1",
-    "tsdown": "0.22.14",
-    "tsx": "4.23.12",
-    "typescript": "6.0.3"
-  }
+    "typescript": "6.0.3",
+    "vite-node": "6.0.0",
+    "vite-plus": "0.3.0"
+  },
+  "packageManager": "pnpm@11.21.0"
 }

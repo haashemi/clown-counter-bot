@@ -7,6 +7,5 @@ export default defineConfig({
   schema: "./src/db/schema/",
   strict: true,
   casing: "snake_case",
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  dbCredentials: { url: env.DB_FILE_PATH! },
+  dbCredentials: { url: env["DB_FILE_PATH"]! },
 });

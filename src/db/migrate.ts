@@ -1,24 +1,19 @@
 import { migrate } from "drizzle-orm/libsql/migrator";
-import { stat } from "node:fs/promises";
 import { join } from "node:path";
 
 import { db } from "@/db";
+import { findAvailablePath } from "@/lib/utils";
 
-async function resolveMigrationsFolder(): Promise<string> {
-  const candidates = [join(import.meta.dirname, "drizzle")]; //, join(process.cwd(), "drizzle")];
+async function getMigrationFolder(): Promise<string> {
+  const availablePath = await findAvailablePath([
+    join(import.meta.dirname, "drizzle"),
+    join(process.cwd(), "drizzle"), //
+  ]);
+  if (availablePath) return availablePath;
 
-  for await (const path of candidates) {
-    try {
-      await stat(path);
-      return path;
-    } catch {
-      // try next candidate
-    }
-  }
-
-  throw new Error(`Migrations folder not found (tried: ${candidates.join(", ")})`);
+  throw new Error(`Migrations folder not found.`);
 }
 
 export async function runMigrations(): Promise<void> {
-  await migrate(db, { migrationsFolder: await resolveMigrationsFolder() });
+  await migrate(db, { migrationsFolder: await getMigrationFolder() });
 }

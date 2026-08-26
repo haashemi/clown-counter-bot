@@ -1,6 +1,6 @@
 allowBuilds:
   esbuild: true
-  simple-git-hooks: true
+  simple-git-hooks: set this to true or false
   unrs-resolver: true
 
 engineStrict: true
@@ -8,8 +8,10 @@ engineStrict: true
 onlyBuiltDependencies:
   - esbuild
   - oxc-resolver
-  - simple-git-hooks
   - unrs-resolver
+
+overrides:
+  "@deno/shim-deno": 0.19.2
 
 packageManagerStrictVersion: true
 
