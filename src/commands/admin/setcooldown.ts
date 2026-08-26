@@ -4,7 +4,7 @@ import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
 
-const MIN_COOLDOWN = 5;
+const MIN_COOLDOWN = 0;
 const MAX_COOLDOWN = 60;
 
 async function setCooldownHandler(ctx: BotContext) {
@@ -14,7 +14,7 @@ async function setCooldownHandler(ctx: BotContext) {
   const args = msg.text?.split(/\s+/).slice(1).join(" ").trim();
 
   if (!args) {
-    return await ctx.reply(ctx.t("cmd_setcooldown_usage"), {
+    return await ctx.reply(ctx.t("cmd_setcooldown_usage", { min: MIN_COOLDOWN, max: MAX_COOLDOWN }), {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
   }
