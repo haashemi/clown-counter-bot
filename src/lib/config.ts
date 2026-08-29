@@ -27,7 +27,7 @@ async function loadConfig(): Promise<Config> {
     throw new Error("Invalid BOT_TOKEN: expected 46 chars matching /^\\d{10}:.+/");
   }
 
-  if (!config.DATABASE_URL || !/^postgres(ql)?:\/\/\S+/.test(config.DATABASE_URL)) {
+  if (!config.DATABASE_URL || !/^postgres(?:ql)?:\/\/\S+/.test(config.DATABASE_URL)) {
     throw new Error("Invalid DATABASE_URL: expected a postgres:// or postgresql:// connection string");
   }
 

@@ -5,12 +5,11 @@
   "scripts": {
     "dev": "vite-node -w src/index.ts",
     "build": "vp pack",
-    "start": "node dist/index.js",
-    "lint": "vp lint --fix",
+    "start": "node dist/index.mjs",
+    "lint": "eslint . --fix",
     "check": "vp check",
     "archive": "rm -f dist.zip && zip -r dist.zip dist .env.example",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "prepare": "vp hooks enable"
@@ -21,20 +20,22 @@
     "@grammyjs/i18n": "1.1.2",
     "@grammyjs/runner": "2.0.3",
     "drizzle-orm": "0.45.2",
-    "grammy": "1.45.1",
+    "grammy": "1.46.0",
     "pg": "8.23.0"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.2",
     "@commitlint/config-conventional": "21.2.2",
     "@commitlint/types": "21.2.0",
-    "@rabits/tsconfig": "0.2.2",
-    "@types/node": "26.2.0",
+    "@fullstacksjs/eslint-config": "14.8.1",
+    "@types/node": "26.4.0",
     "@types/pg": "8.23.1",
     "drizzle-kit": "0.31.10",
+    "eslint": "10.9.1",
+    "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vite-node": "6.0.0",
     "vite-plus": "0.3.0"
   },
-  "packageManager": "pnpm@11.21.0"
+  "packageManager": "pnpm@11.24.0"
 }

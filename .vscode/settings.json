@@ -1,17 +1,17 @@
 {
   "npm.scriptRunner": "vp",
-  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "[javascript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "oxc.disableNestedConfig": true,
   "oxc.fmt.disableNestedConfig": true,

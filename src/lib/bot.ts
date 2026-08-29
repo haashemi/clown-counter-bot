@@ -32,7 +32,6 @@ export class Bot extends GrammyBot<BotContext> {
   }
 
   override errorHandler: ErrorHandler = (err) => {
-    // eslint-disable-next-line no-console
     const logErr = console.error;
 
     logErr(`Error while handling update ${err.ctx.update.update_id}:`);

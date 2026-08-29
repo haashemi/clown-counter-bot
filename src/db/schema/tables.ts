@@ -17,7 +17,7 @@ export const groups = t.pgTable("groups", {
 export const clownVotes = t.pgTable(
   "clown_votes",
   {
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    id: t.bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
     voterId: t.bigint({ mode: "number" }).references(() => users.id),
     clownId: t
       .bigint({ mode: "number" })

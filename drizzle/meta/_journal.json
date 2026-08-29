@@ -8,6 +8,13 @@
       "when": 1787757023477,
       "tag": "0000_superb_excalibur",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788017204879,
+      "tag": "0001_natural_celestials",
+      "breakpoints": true
     }
   ]
 }
