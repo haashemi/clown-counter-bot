@@ -28,6 +28,7 @@ export const clownVotes = t.pgTable(
       .notNull()
       .references(() => groups.id),
     votedAt: t.timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    quantity: t.bigint({ mode: "number" }).notNull().default(1),
   },
   (table) => [
     t.index("clown_votes_group_voter_idx").on(table.groupId, table.voterId, table.votedAt),

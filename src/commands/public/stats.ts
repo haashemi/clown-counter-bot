@@ -1,5 +1,5 @@
 import { Command } from "@grammyjs/commands";
-import { and, count, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 
 import type { BotContext } from "@/lib/bot";
 
@@ -25,13 +25,13 @@ async function groupStatsHandler(ctx: BotContext) {
   const clowns = await db
     .select({
       name: schema.users.name,
-      count: count(schema.clownVotes.id),
+      count: sql<number>`coalesce(sum(${schema.clownVotes.quantity}), 0)::int`,
     })
     .from(schema.clownVotes)
     .leftJoin(schema.users, eq(schema.users.id, schema.clownVotes.clownId))
     .groupBy(schema.users.id)
     .where(and(...conditions))
-    .orderBy(desc(count(schema.clownVotes.id)));
+    .orderBy(desc(sql`coalesce(sum(${schema.clownVotes.quantity}), 0)`));
 
   if (clowns.length === 0) {
     return await ctx.reply(ctx.t("cmd_stats_no_clown"), {

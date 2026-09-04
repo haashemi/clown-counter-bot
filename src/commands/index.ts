@@ -9,6 +9,7 @@ import { cmdSetCooldown } from "./admin/setcooldown";
 import { cmdSetGif } from "./admin/setgif";
 import { cmdSetSticker } from "./admin/setsticker";
 import { cmdClown } from "./clown";
+import { cmdClownOfTheDay } from "./public/clownoftheday";
 import { cmdStats } from "./public/stats";
 import { cmdPrivacy } from "./static/privacy";
 import { cmdSource } from "./static/source";
@@ -25,6 +26,7 @@ export const commands = new CommandGroup<BotContext>().add([
 
   // Public
   cmdStats,
+  cmdClownOfTheDay,
 
   // Admin
   cmdSetGif,

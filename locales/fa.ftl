@@ -61,6 +61,14 @@ cmd_stats_group_clown = {"\u200F"}— { $name } با { $votes } رای
 
 cmd_stats_reset_at = 🕐 آمار از { $date } شمرده می‌شود.
 
+# Clown of the day
+cmd_clown_of_the_day_wait = ⏳ دلقک روز امروز انتخاب شده! فردا دوباره سر بزن. 🤡
+cmd_clown_of_the_day_no_users =
+    😐 هنوز کسی توی این گروه دلقک نشده که بتونم انتخابش کنم!
+
+    اول با دستور clown/ یکی رو دلقک کن، بعد بیا سراغ دلقک روز. 🤡
+cmd_clown_of_the_day = {"\u200F"}👑 دلقک امروز: { $clown } — با { $quantity } رای دلقکی!
+
 # Admin commands
 cmd_setgif =
     🪄 گیف کاستوم برای دلقک کردن!
