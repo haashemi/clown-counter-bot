@@ -14,16 +14,13 @@ const bot = new Bot(config.BOT_TOKEN, await getLocalesDirectory());
 
 bot.use(commands);
 
+const inGroup = (ctx: BotContext) => !!ctx.chat && ["group", "supergroup"].includes(ctx.chat.type);
+
 const routeClownCall = (ctx: BotContext) => (ctx.clownCall === "unclown" ? unclownHandler(ctx) : clownHandler(ctx));
 
-bot
-  .filter((ctx) => !!ctx.chat && ["group", "supergroup"].includes(ctx.chat.type))
-  .on("message", isClownCall, routeClownCall);
+bot.filter(inGroup).on("message", isClownCall, routeClownCall);
 
-bot
-  .filter((ctx) => !!ctx.chat && ["group", "supergroup"].includes(ctx.chat.type))
-  .callbackQuery("resetstats:yes", confirmResetStats)
-  .callbackQuery("resetstats:no", denyResetStats);
+bot.filter(inGroup).callbackQuery("resetstats:yes", confirmResetStats).callbackQuery("resetstats:no", denyResetStats);
 
 await runMigrations();
 

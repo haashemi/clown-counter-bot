@@ -3,54 +3,48 @@ import type { BotContext, ClownCall } from "@/lib/bot";
 import { db } from "@/db";
 import { parseFileId } from "@/lib/parse-file-id";
 
-interface MediaIds {
-  gifIds: string[] | null;
-  stickerIds: string[] | null;
-}
-
 const clownTexts = ["🤡", "دلقک"];
 const unclownTexts = ["😇", "ستون", "آدم عاقل"];
 
-// eslint-disable-next-line complexity
+const MEDIA_COLUMNS = { gifIds: true, stickerIds: true, unclownGifIds: true, unclownStickerIds: true } as const;
+
+function matchText(text: string | undefined): ClownCall | null {
+  if (clownTexts.includes(text ?? "")) return "clown";
+  if (unclownTexts.includes(text ?? "")) return "unclown";
+  return null;
+}
+
+function matchMedia(group: Record<keyof typeof MEDIA_COLUMNS, string[] | null>, parsedId: string): ClownCall | null {
+  if (group.gifIds?.includes(parsedId) || group.stickerIds?.includes(parsedId)) return "clown";
+  if (group.unclownGifIds?.includes(parsedId) || group.unclownStickerIds?.includes(parsedId)) return "unclown";
+  return null;
+}
+
+async function matchMediaCall(ctx: BotContext): Promise<ClownCall | null> {
+  const fileId = ctx.msg?.animation?.file_id ?? ctx.msg?.sticker?.file_id;
+
+  const chatId = ctx.chat?.id;
+  if (!fileId || !chatId) return null;
+
+  const group = await db.query.groups.findFirst({
+    columns: MEDIA_COLUMNS,
+    where: (f, o) => o.eq(f.id, chatId),
+  });
+
+  if (!group) return null;
+
+  return matchMedia(group, parseFileId(fileId).id.toString());
+}
+
 export const isClownCall = async (ctx: BotContext, next: () => Promise<unknown>) => {
   if (!ctx.msg || !ctx.chat) return null;
 
-  if (ctx.msg.text && clownTexts.includes(ctx.msg.text)) {
-    ctx.clownCall = "clown";
-    return await next();
-  }
+  const call = matchText(ctx.msg.text) ?? (await matchMediaCall(ctx));
 
-  if (ctx.msg.text && unclownTexts.includes(ctx.msg.text)) {
-    ctx.clownCall = "unclown";
-    return await next();
-  }
+  if (!call) return null;
 
-  const group = await db.query.groups.findFirst({
-    columns: { gifIds: true, stickerIds: true, unclownGifIds: true, unclownStickerIds: true },
-    //@ts-ignore I'm pretty sure I checked ctx.chat, why the hell it gives me an error?
-    where: (f, o) => o.eq(f.id, ctx.chat.id),
-  });
-
-  if (group) {
-    const { gifIds, stickerIds, unclownGifIds, unclownStickerIds } = group;
-
-    const configs: [string, MediaIds][] = [
-      ["clown", { gifIds, stickerIds }],
-      ["unclown", { gifIds: unclownGifIds, stickerIds: unclownStickerIds }],
-    ];
-
-    const fileId = ctx.msg.animation?.file_id ?? ctx.msg.sticker?.file_id;
-    const parsedId = fileId ? parseFileId(fileId).id.toString() : null;
-
-    if (parsedId) {
-      for await (const [call, { gifIds: g, stickerIds: s }] of configs) {
-        if (g?.includes(parsedId) || s?.includes(parsedId)) {
-          ctx.clownCall = call as ClownCall;
-          return await next();
-        }
-      }
-    }
-  }
-
-  return null;
+  // False positive: each grammY update gets a fresh ctx; there is no shared mutable state.
+  // eslint-disable-next-line require-atomic-updates
+  ctx.clownCall = call;
+  return await next();
 };

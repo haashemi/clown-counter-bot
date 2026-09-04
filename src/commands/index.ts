@@ -2,8 +2,7 @@ import { CommandGroup } from "@grammyjs/commands";
 
 import type { BotContext } from "@/lib/bot";
 
-import { cmdRemoveGif, cmdRemoveSticker, cmdRemoveUnclownGif, cmdRemoveUnclownSticker } from "./admin/media-remove";
-import { cmdSetGif, cmdSetSticker, cmdSetUnclownGif, cmdSetUnclownSticker } from "./admin/media-set";
+import { mediaCommands } from "./admin/media-commands";
 import { cmdResetStats } from "./admin/resetstats";
 import { cmdSetCooldown } from "./admin/setcooldown";
 import { cmdClown, cmdUnclown } from "./clown";
@@ -30,12 +29,5 @@ export const commands = new CommandGroup<BotContext>().add([
   // Admin
   cmdResetStats,
   cmdSetCooldown,
-  cmdRemoveGif,
-  cmdRemoveSticker,
-  cmdRemoveUnclownGif,
-  cmdRemoveUnclownSticker,
-  cmdSetGif,
-  cmdSetSticker,
-  cmdSetUnclownGif,
-  cmdSetUnclownSticker,
+  ...mediaCommands,
 ]);

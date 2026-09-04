@@ -1,6 +1,6 @@
 import type { User } from "grammy/types";
 
-import { sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import type { BotContext } from "@/lib/bot";
 
@@ -15,6 +15,10 @@ interface Data {
   clown: User & { name: string };
 }
 
+function displayName(user: User): string {
+  return user.last_name ? `${user.first_name} ${user.last_name}` : user.first_name;
+}
+
 function getData(ctx: BotContext): Data | null {
   if (!ctx.message) return null;
 
@@ -26,43 +30,32 @@ function getData(ctx: BotContext): Data | null {
   return {
     messageId: ctx.message.message_id,
     group: { id: ctx.message.chat.id, name: ctx.message.chat.title ?? "" },
-    voter: { ...voter, name: `${voter.first_name}${voter.last_name ? ` ${voter.last_name}` : ""}` },
-    clown: { ...clown, name: `${clown.first_name}${clown.last_name ? ` ${clown.last_name}` : ""}` },
+    voter: { ...voter, name: displayName(voter) },
+    clown: { ...clown, name: displayName(clown) },
   };
 }
 
-async function getGroupCooldown(groupId: number): Promise<number> {
+/** Race-free cooldown check: returns the wait in minutes, or 0 when allowed. */
+async function waitMinutes({ group: { id }, voter }: Data): Promise<number> {
   const group = await db.query.groups.findFirst({
     columns: { cooldown: true },
-    where: (f, o) => o.eq(f.id, groupId),
+    where: (f, o) => o.eq(f.id, id),
   });
 
-  return group?.cooldown ?? DEFAULT_COOLDOWN;
-}
+  const cooldown = group?.cooldown ?? DEFAULT_COOLDOWN;
 
-async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boolean; waitMin: number }> {
-  const [res, groupCooldown] = await Promise.all([
-    db.query.clownVotes.findFirst({
-      columns: { votedAt: true },
-      where: (f, o) => o.and(o.eq(f.groupId, id), o.eq(f.voterId, voter.id)),
-      orderBy: (f, o) => o.desc(f.votedAt),
-    }),
-    getGroupCooldown(id),
-  ]);
+  const [last] = await db
+    .select({ votedAt: schema.clownVotes.votedAt })
+    .from(schema.clownVotes)
+    .where(and(eq(schema.clownVotes.groupId, id), eq(schema.clownVotes.voterId, voter.id)))
+    .orderBy(desc(schema.clownVotes.votedAt))
+    .limit(1);
 
-  if (!res) return { allowed: true, waitMin: 0 };
+  if (!last) return 0;
 
-  const now = Date.now();
-  const last = res.votedAt.getTime();
-  const diff = now - last;
+  const diff = Date.now() - last.votedAt.getTime();
 
-  if (diff > groupCooldown) {
-    return { allowed: true, waitMin: 0 };
-  }
-
-  const waitMin = Math.ceil((groupCooldown - diff) / 1000 / 60);
-
-  return { allowed: false, waitMin };
+  return diff > cooldown ? 0 : Math.ceil((cooldown - diff) / 1000 / 60);
 }
 
 async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
@@ -73,21 +66,13 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
 
   const prefix = quantity > 0 ? "cmd_clown" : "cmd_unclown";
 
-  if (clown.id === ctx.me.id) {
-    return await ctx.reply(ctx.t(`${prefix}_is_me`), {
-      reply_parameters: { message_id: messageId, chat_id: group.id },
-    });
-  } else if (clown.is_bot) {
-    return await ctx.reply(ctx.t(`${prefix}_is_bot`), {
-      reply_parameters: { message_id: messageId, chat_id: group.id },
-    });
-  } else if (voter.id === clown.id) {
-    return await ctx.reply(ctx.t(`${prefix}_is_you`), {
-      reply_parameters: { message_id: messageId, chat_id: group.id },
-    });
-  }
+  const reply = (text: string) => ctx.reply(text, { reply_parameters: { message_id: messageId, chat_id: group.id } });
 
-  // TODO: There has to be a better way...
+  const rejection =
+    clown.id === ctx.me.id ? "is_me" : clown.is_bot ? "is_bot" : voter.id === clown.id ? "is_you" : null;
+
+  if (rejection) return await reply(ctx.t(`${prefix}_${rejection}`));
+
   // Upsert both users in one statement, and the group concurrently.
   await Promise.all([
     db
@@ -103,12 +88,10 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
       .onConflictDoUpdate({ target: schema.groups.id, set: { name: group.name } }),
   ]);
 
-  const result = await canInsert(data);
+  const waitMin = await waitMinutes(data);
 
-  if (!result.allowed) {
-    return await ctx.reply(ctx.t(`${prefix}_wait`, { waitMin: result.waitMin }), {
-      reply_parameters: { message_id: messageId, chat_id: group.id },
-    });
+  if (waitMin > 0) {
+    return await reply(ctx.t(`${prefix}_wait`, { waitMin }));
   }
 
   await db.insert(schema.clownVotes).values({
@@ -118,9 +101,7 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
     quantity,
   });
 
-  return await ctx.reply(ctx.t(`${prefix}`, { clown: clown.name, voter: voter.name }), {
-    reply_parameters: { message_id: messageId, chat_id: group.id },
-  });
+  return await reply(ctx.t(`${prefix}`, { clown: clown.name, voter: voter.name }));
 }
 
 export function clownHandler(ctx: BotContext) {

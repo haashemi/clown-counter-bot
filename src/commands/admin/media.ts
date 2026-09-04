@@ -7,9 +7,9 @@ import { parseFileId } from "@/lib/parse-file-id";
 
 type Group = typeof schema.groups.$inferSelect;
 
-type GroupPatch = Partial<typeof schema.groups.$inferInsert>;
+export type GroupPatch = Partial<typeof schema.groups.$inferInsert>;
 
-interface MediaConfig {
+export interface MediaSpec {
   /** i18n key prefix, e.g. `cmd_setgif` → `cmd_setgif_invalid`, `cmd_setgif_limit`, ... */
   key: string;
   max: number;
@@ -18,75 +18,73 @@ interface MediaConfig {
   apply: (value: string[] | null) => GroupPatch;
 }
 
-export function createSetMediaHandler(config: MediaConfig) {
+async function saveGroup(chatId: number, name: string | undefined, patch: GroupPatch): Promise<void> {
+  const values = { id: chatId, name, ...patch };
+
+  await db.insert(schema.groups).values(values).onConflictDoUpdate({
+    target: schema.groups.id,
+    set: patch,
+  });
+}
+
+export function createSetMediaHandler(spec: MediaSpec) {
   return async (ctx: BotContext) => {
     const { msg } = ctx;
     if (!msg) return;
 
     const replyTo = msg.reply_to_message;
 
-    if (!replyTo) return await ctx.replyTo(msg, ctx.t(config.key));
+    if (!replyTo) return await ctx.replyTo(msg, ctx.t(spec.key));
 
-    const rawFileId = config.getFileId(replyTo);
-    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${config.key}_invalid`));
+    const rawFileId = spec.getFileId(replyTo);
+    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
 
     const group = await db.query.groups.findFirst({
       where: (f, o) => o.eq(f.id, msg.chat.id),
     });
 
-    const existing = config.getIds(group);
+    const existing = spec.getIds(group);
 
-    if (existing.length >= config.max) return await ctx.replyTo(msg, ctx.t(`${config.key}_limit`));
+    if (existing.length >= spec.max) return await ctx.replyTo(msg, ctx.t(`${spec.key}_limit`));
 
     const updated = [...existing, parseFileId(rawFileId).id.toString()];
-    const patch = { name: msg.chat.title, ...config.apply(updated) };
 
-    await db
-      .insert(schema.groups)
-      .values({ id: msg.chat.id, ...patch })
-      .onConflictDoUpdate({
-        target: [schema.groups.id],
-        set: patch,
-      });
+    await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated), name: msg.chat.title });
 
-    return await ctx.replyTo(msg, ctx.t(`${config.key}_done`, { count: updated.length, max: config.max }));
+    return await ctx.replyTo(msg, ctx.t(`${spec.key}_done`, { count: updated.length, max: spec.max }));
   };
 }
 
-export function createRemoveMediaHandler(config: MediaConfig) {
+export function createRemoveMediaHandler(spec: MediaSpec) {
   return async (ctx: BotContext) => {
     const { msg } = ctx;
     if (!msg) return;
 
     const replyTo = msg.reply_to_message;
 
-    if (!replyTo) return await ctx.replyTo(msg, ctx.t(`${config.key}_usage`));
+    if (!replyTo) return await ctx.replyTo(msg, ctx.t(`${spec.key}_usage`));
 
-    const rawFileId = config.getFileId(replyTo);
-    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${config.key}_invalid`));
+    const rawFileId = spec.getFileId(replyTo);
+    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
 
     const group = await db.query.groups.findFirst({
       where: (f, o) => o.eq(f.id, msg.chat.id),
     });
 
-    const existing = config.getIds(group);
+    const existing = spec.getIds(group);
 
-    if (existing.length === 0) return await ctx.replyTo(msg, ctx.t(`${config.key}_empty`));
+    if (existing.length === 0) return await ctx.replyTo(msg, ctx.t(`${spec.key}_empty`));
 
     const fileId = parseFileId(rawFileId).id.toString();
-    if (!existing.includes(fileId)) return await ctx.replyTo(msg, ctx.t(`${config.key}_not_found`));
+    if (!existing.includes(fileId)) return await ctx.replyTo(msg, ctx.t(`${spec.key}_not_found`));
 
     const updated = existing.filter((id) => id !== fileId);
-    const patch = { name: msg.chat.title, ...config.apply(updated.length > 0 ? updated : null) };
 
-    await db
-      .insert(schema.groups)
-      .values({ id: msg.chat.id, ...patch })
-      .onConflictDoUpdate({
-        target: [schema.groups.id],
-        set: patch,
-      });
+    await saveGroup(msg.chat.id, msg.chat.title, {
+      ...spec.apply(updated.length > 0 ? updated : null),
+      name: msg.chat.title,
+    });
 
-    return await ctx.replyTo(msg, ctx.t(`${config.key}_done`));
+    return await ctx.replyTo(msg, ctx.t(`${spec.key}_done`));
   };
 }

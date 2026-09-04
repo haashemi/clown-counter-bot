@@ -3,25 +3,25 @@
 const TYPE_ID_WEB_LOCATION_FLAG = 1 << 24;
 const TYPE_ID_FILE_REFERENCE_FLAG = 1 << 25;
 
-export const TYPE_THUMBNAIL = 0;
-export const TYPE_PROFILE_PHOTO = 1;
-export const TYPE_PHOTO = 2;
-export const TYPE_VOICE = 3;
-export const TYPE_VIDEO = 4;
-export const TYPE_DOCUMENT = 5;
-export const TYPE_ENCRYPTED = 6;
-export const TYPE_TEMP = 7;
-export const TYPE_STICKER = 8;
-export const TYPE_AUDIO = 9;
-export const TYPE_ANIMATION = 10;
-export const TYPE_ENCRYPTED_THUMBNAIL = 11;
-export const TYPE_WALLPAPER = 12;
-export const TYPE_VIDEO_NOTE = 13;
-export const TYPE_SECURE_RAW = 14;
-export const TYPE_SECURE = 15;
-export const TYPE_BACKGROUND = 16;
-export const TYPE_SIZE = 17;
-export const TYPE_NONE = 18;
+const TYPE_THUMBNAIL = 0;
+const TYPE_PROFILE_PHOTO = 1;
+const TYPE_PHOTO = 2;
+const TYPE_VOICE = 3;
+const TYPE_VIDEO = 4;
+const TYPE_DOCUMENT = 5;
+// const TYPE_ENCRYPTED = 6;
+// const TYPE_TEMP = 7;
+const TYPE_STICKER = 8;
+const TYPE_AUDIO = 9;
+const TYPE_ANIMATION = 10;
+// const TYPE_ENCRYPTED_THUMBNAIL = 11;
+// const TYPE_WALLPAPER = 12;
+const TYPE_VIDEO_NOTE = 13;
+// const TYPE_SECURE_RAW = 14;
+// const TYPE_SECURE = 15;
+// const TYPE_BACKGROUND = 16;
+// const TYPE_SIZE = 17;
+// const TYPE_NONE = 18;
 
 const PHOTOSIZE_SOURCE_LEGACY = 0;
 const PHOTOSIZE_SOURCE_THUMBNAIL = 1;
@@ -89,14 +89,6 @@ class BinaryReader {
 
   constructor(buffer: Buffer) {
     this.buffer = buffer;
-  }
-
-  get position(): number {
-    return this.pos;
-  }
-
-  get length(): number {
-    return this.buffer.length;
   }
 
   read(bytes: number): Buffer {
