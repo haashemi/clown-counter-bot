@@ -1,5 +1,6 @@
 import type { I18nFlavor } from "@grammyjs/i18n";
 import type { Context, ErrorHandler } from "grammy";
+import type { Message } from "grammy/types";
 
 import { autoRetry } from "@grammyjs/auto-retry";
 import { I18n } from "@grammyjs/i18n";
@@ -8,7 +9,13 @@ import { join } from "node:path";
 
 import { findAvailablePath } from "./utils";
 
-export type BotContext = Context & I18nFlavor;
+export type ClownCall = "clown" | "unclown";
+
+export type BotContext = Context &
+  I18nFlavor & {
+    clownCall?: ClownCall;
+    replyTo: (msg: Message, text: string) => ReturnType<Context["reply"]>;
+  };
 
 export async function getLocalesDirectory(): Promise<string> {
   const availablePath = await findAvailablePath([
@@ -27,6 +34,12 @@ export class Bot extends GrammyBot<BotContext> {
     const i18n = new I18n<BotContext>({ defaultLocale: "fa", directory: localesDirectory });
 
     this.use(i18n);
+
+    this.use(async (ctx, next) => {
+      ctx.replyTo = (msg, text) =>
+        ctx.reply(text, { reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id } });
+      await next();
+    });
 
     this.api.config.use(autoRetry());
   }

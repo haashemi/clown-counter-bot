@@ -10,6 +10,8 @@ export const groups = t.pgTable("groups", {
   name: t.text(),
   gifIds: t.jsonb().$type<string[]>(),
   stickerIds: t.jsonb().$type<string[]>(),
+  unclownGifIds: t.jsonb().$type<string[]>(),
+  unclownStickerIds: t.jsonb().$type<string[]>(),
   resetAt: t.timestamp({ withTimezone: true, mode: "date" }),
   cooldown: t.integer(),
 });

@@ -2,13 +2,11 @@ import { CommandGroup } from "@grammyjs/commands";
 
 import type { BotContext } from "@/lib/bot";
 
-import { cmdRemoveGif } from "./admin/removegif";
-import { cmdRemoveSticker } from "./admin/removesticker";
+import { cmdRemoveGif, cmdRemoveSticker, cmdRemoveUnclownGif, cmdRemoveUnclownSticker } from "./admin/media-remove";
+import { cmdSetGif, cmdSetSticker, cmdSetUnclownGif, cmdSetUnclownSticker } from "./admin/media-set";
 import { cmdResetStats } from "./admin/resetstats";
 import { cmdSetCooldown } from "./admin/setcooldown";
-import { cmdSetGif } from "./admin/setgif";
-import { cmdSetSticker } from "./admin/setsticker";
-import { cmdClown } from "./clown";
+import { cmdClown, cmdUnclown } from "./clown";
 import { cmdClownOfTheDay } from "./public/clownoftheday";
 import { cmdStats } from "./public/stats";
 import { cmdPrivacy } from "./static/privacy";
@@ -23,16 +21,21 @@ export const commands = new CommandGroup<BotContext>().add([
 
   // Magic
   cmdClown,
+  cmdUnclown,
 
   // Public
   cmdStats,
   cmdClownOfTheDay,
 
   // Admin
-  cmdSetGif,
-  cmdRemoveGif,
-  cmdSetSticker,
-  cmdRemoveSticker,
-  cmdSetCooldown,
   cmdResetStats,
+  cmdSetCooldown,
+  cmdRemoveGif,
+  cmdRemoveSticker,
+  cmdRemoveUnclownGif,
+  cmdRemoveUnclownSticker,
+  cmdSetGif,
+  cmdSetSticker,
+  cmdSetUnclownGif,
+  cmdSetUnclownSticker,
 ]);

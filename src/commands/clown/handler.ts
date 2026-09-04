@@ -65,22 +65,24 @@ async function canInsert({ group: { id }, voter }: Data): Promise<{ allowed: boo
   return { allowed: false, waitMin };
 }
 
-export async function clownHandler(ctx: BotContext) {
+async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
   const data = getData(ctx);
   if (!data) return;
 
   const { messageId, group, voter, clown } = data;
 
+  const prefix = quantity > 0 ? "cmd_clown" : "cmd_unclown";
+
   if (clown.id === ctx.me.id) {
-    return await ctx.reply(ctx.t("cmd_clown_is_me"), {
+    return await ctx.reply(ctx.t(`${prefix}_is_me`), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   } else if (clown.is_bot) {
-    return await ctx.reply(ctx.t("cmd_clown_is_bot"), {
+    return await ctx.reply(ctx.t(`${prefix}_is_bot`), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   } else if (voter.id === clown.id) {
-    return await ctx.reply(ctx.t("cmd_clown_is_you"), {
+    return await ctx.reply(ctx.t(`${prefix}_is_you`), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
@@ -104,7 +106,7 @@ export async function clownHandler(ctx: BotContext) {
   const result = await canInsert(data);
 
   if (!result.allowed) {
-    return await ctx.reply(ctx.t("cmd_clown_wait", { waitMin: result.waitMin }), {
+    return await ctx.reply(ctx.t(`${prefix}_wait`, { waitMin: result.waitMin }), {
       reply_parameters: { message_id: messageId, chat_id: group.id },
     });
   }
@@ -113,9 +115,18 @@ export async function clownHandler(ctx: BotContext) {
     groupId: group.id,
     voterId: voter.id,
     clownId: clown.id,
+    quantity,
   });
 
-  return await ctx.reply(ctx.t("cmd_clown", { clown: clown.name, voter: voter.name }), {
+  return await ctx.reply(ctx.t(`${prefix}`, { clown: clown.name, voter: voter.name }), {
     reply_parameters: { message_id: messageId, chat_id: group.id },
   });
+}
+
+export function clownHandler(ctx: BotContext) {
+  return voteHandler(ctx, 1);
+}
+
+export function unclownHandler(ctx: BotContext) {
+  return voteHandler(ctx, -1);
 }

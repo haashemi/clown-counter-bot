@@ -46,6 +46,17 @@ cmd_clown_is_you = دا؟ خودت رو می‌خوای دلقک کنی؟ چرا
 cmd_clown_wait = ⏳ هنوز زوده! { $waitMin } دقیقه دیگه می‌تونی دلقک کنی.
 cmd_clown = {"\u200F"}🤡 { $clown } توسط { $voter } دلقک شد!
 
+# Unclown command
+cmd_unclown_is_me = 🤫 در تلاشی سطح منو بیاری پایین؟ فکر کردی من کم دلقکم؟ من خیلی دلقکم!
+
+cmd_unclown_is_bot = 😭 اینی که می‌خوای دلقکش کنی رباته... چیکارت کرده؟
+
+cmd_unclown_is_you = 😂 دلقک واقعی تویی که فکر می‌کنی می‌تونی رتبه دلقکیتو بیاری پایین
+
+cmd_unclown_wait = ⏳ هنوز زوده! { $waitMin } دقیقه دیگه می‌تونی ضد دلقک رو اجرا کنی. نگران نباش کسی از تو دلقک‌تر نمیشه.
+
+cmd_unclown = {"\u200F"}💀 سطح دلقکی { $clown } توسط { $voter } کاهش یافت!
+
 # Public commands
 cmd_stats_no_clown =
     دلقک‌های گروه شما هنوز مشخص نیست.
@@ -144,6 +155,82 @@ cmd_removesticker_not_found =
     😐 این استیکر در لیست استیکرهای تنظیم شده نیست.
 
 cmd_removesticker_done =
+    👀 استیکر از لیست حذف شد.
+
+cmd_setunclowngif =
+    🪄 گیف کاستوم برای دلقک‌برداری!
+
+    اگه ادمین گروهی، همین دستور setunclowngif/ رو روی یک گیف ریپلای کن تا اون گیف به عنوان «دلقک‌بردار» ست بشه.
+    📌 حداکثر ۳ گیف قابل تنظیم است.
+
+cmd_setunclowngif_invalid =
+    😐 ادمین دلقک‌برداری ندیده بودیم که دیدیم.
+
+    یَره، موگوم روی «گیف» ریپلای کن. این چیه ریپلای کردی روش الان؟
+
+cmd_setunclowngif_limit =
+    😐 ظرفیت گیف‌ها پره!
+
+    حداکثر ۳ گیف قابل تنظیمه. اول یکی رو با /removeunclowngif حذف کن.
+
+cmd_setunclowngif_done =
+    👀 گیف جدید برای دلقک‌برداری تنظیم شد. ({ $count } از { $max })
+
+cmd_removeunclowngif_usage =
+    🪄 حذف گیف دلقک‌بردار!
+
+    روی یک گیف ریپلای کن و دستور /removeunclowngif رو بزن تا اون گیف حذف بشه.
+
+cmd_removeunclowngif_invalid =
+    😐 روی یک «گیف» ریپلای کن.
+
+cmd_removeunclowngif_empty =
+    😐 هیچ گیفی تنظیم نشده!
+
+    اول با /setunclowngif یک گیف اضافه کن.
+
+cmd_removeunclowngif_not_found =
+    😐 این گیف در لیست گیف‌های تنظیم شده نیست.
+
+cmd_removeunclowngif_done =
+    👀 گیف از لیست حذف شد.
+
+cmd_setunclownsticker =
+    🪄 استیکر کاستوم برای دلقک‌برداری!
+
+    اگه ادمین گروهی، همین دستور setunclownsticker/ رو روی یک استیکر ریپلای کن تا اون استیکر به عنوان «دلقک‌بردار» ست بشه.
+    📌 حداکثر ۳ استیکر قابل تنظیم است.
+
+cmd_setunclownsticker_invalid =
+    😐 ادمین دلقک‌برداری ندیده بودیم که دیدیم.
+
+    یَره، موگوم روی «استیکر» ریپلای کن. این چیه ریپلای کردی روش الان؟
+
+cmd_setunclownsticker_limit =
+    😐 ظرفیت استیکرها پره!
+
+    حداکثر ۳ استیکر قابل تنظیمه. اول یکی رو با /removeunclownsticker حذف کن.
+
+cmd_setunclownsticker_done =
+    👀 استیکر جدید برای دلقک‌برداری تنظیم شد. ({ $count } از { $max })
+
+cmd_removeunclownsticker_usage =
+    🪄 حذف استیکر دلقک‌بردار!
+
+    روی یک استیکر ریپلای کن و دستور /removeunclownsticker رو بزن تا اون استیکر حذف بشه.
+
+cmd_removeunclownsticker_invalid =
+    😐 روی یک «استیکر» ریپلای کن.
+
+cmd_removeunclownsticker_empty =
+    😐 هیچ استیکری تنظیم نشده!
+
+    اول با /setunclownsticker یک استیکر اضافه کن.
+
+cmd_removeunclownsticker_not_found =
+    😐 این استیکر در لیست استیکرهای تنظیم شده نیست.
+
+cmd_removeunclownsticker_done =
     👀 استیکر از لیست حذف شد.
 
 cmd_setcooldown_usage =
