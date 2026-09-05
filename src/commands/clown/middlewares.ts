@@ -1,7 +1,7 @@
 import type { BotContext, ClownCall } from "@/lib/bot";
 
 import { db } from "@/db";
-import { parseFileId } from "@/lib/parse-file-id";
+import { parseFileId } from "@/lib/file-id";
 
 const clownTexts = ["🤡", "دلقک"];
 const unclownTexts = ["😇", "ستون", "آدم عاقل"];

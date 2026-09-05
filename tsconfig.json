@@ -31,6 +31,7 @@
 
     "paths": {
       "@/db": ["./src/db/index.ts"],
+      "@/handlers/*": ["./src/handlers/*"],
       "@/lib/*": ["./src/lib/*"]
     }
   }
