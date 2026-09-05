@@ -14,14 +14,18 @@ async function clownOfTheDayHandler(ctx: BotContext) {
 
   const groupId = message.chat.id;
 
-  // Once per group per day: any system vote (voterId IS NULL) in the last 24h blocks a rerun.
-  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  // Once per group per day: blocks if the latest system vote (voterId IS NULL)
+  // falls on the same calendar day as now (server's local timezone).
+  const sameDay = (d: Date, now = new Date()) =>
+    d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+
   const recent = await db.query.clownVotes.findFirst({
     columns: { votedAt: true },
-    where: (f, o) => o.and(o.eq(f.groupId, groupId), o.isNull(f.voterId), o.gte(f.votedAt, dayAgo)),
+    where: (f, o) => o.and(o.eq(f.groupId, groupId), o.isNull(f.voterId)),
+    orderBy: (f, o) => [o.desc(f.votedAt)],
   });
 
-  if (recent) {
+  if (recent && sameDay(recent.votedAt)) {
     return await ctx.reply(ctx.t("cmd_clown_of_the_day_wait"), {
       reply_parameters: { message_id: message.message_id, chat_id: groupId },
     });
