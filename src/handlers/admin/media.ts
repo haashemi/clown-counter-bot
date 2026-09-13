@@ -1,14 +1,13 @@
 import type { BotCommandScope, Message } from "grammy/types";
 
 import type { schema } from "@/db";
+import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 import type { GroupPatch } from "@/lib/utils";
 
 import { db } from "@/db";
 import { parseFileId } from "@/lib/file-id";
 import { saveGroup } from "@/lib/utils";
-
-import type { Handler } from "..";
 
 type FilesOfGroup = Pick<
   typeof schema.groups.$inferSelect,
@@ -134,17 +133,23 @@ function toSpec(kind: MediaKind, verb: "remove" | "set"): MediaSpec {
   };
 }
 
-export const mediaHandlers: Handler[] = KINDS.flatMap((kind) => {
-  const scope: BotCommandScope = { type: "all_chat_administrators" };
+export const mediaHandlers: CommandHandler[] = KINDS.flatMap((kind) => {
+  const scopes: BotCommandScope[] = [{ type: "all_chat_administrators" }];
 
   return [
     {
-      command: { name: `set${kind.key}`, description: `🛡 تنظیم ${kind.description}`, scope },
+      kind: "command",
+      name: `set${kind.key}`,
+      description: `🛡 تنظیم ${kind.description}`,
+      scopes,
       handler: createSetMediaHandler(toSpec(kind, "set")),
     },
     {
-      command: { name: `remove${kind.key}`, description: `🛡 حذف ${kind.description}`, scope },
+      kind: "command",
+      name: `remove${kind.key}`,
+      description: `🛡 حذف ${kind.description}`,
+      scopes,
       handler: createRemoveMediaHandler(toSpec(kind, "remove")),
     },
-  ] satisfies Handler[];
+  ] satisfies CommandHandler[];
 });
