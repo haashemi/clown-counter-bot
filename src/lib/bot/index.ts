@@ -1,4 +1,3 @@
-import type { CommandGroup } from "@grammyjs/commands";
 import type { Context, Middleware } from "grammy";
 
 import { run } from "@grammyjs/runner";
@@ -7,6 +6,7 @@ import { Bot as GrammyBot } from "grammy";
 import type { I18nFlavor } from "./plugins/i18n";
 import type { ReplyToFlavor } from "./plugins/reply-to";
 
+import { commands } from "./commands";
 import { errorHandler } from "./error-handler";
 import { autoRetryPlugin } from "./plugins/auto-retry";
 
@@ -20,15 +20,11 @@ export type BotContext = Context &
 
 interface BotOptions {
   plugins: Middleware<BotContext>[];
-  commands: CommandGroup<BotContext>;
 }
 
 export class Bot extends GrammyBot<BotContext> {
-  commands: CommandGroup<BotContext>;
-
-  constructor(token: string, { plugins, commands }: BotOptions) {
+  constructor(token: string, { plugins }: BotOptions) {
     super(token);
-    this.commands = commands;
 
     plugins.forEach((plugin) => this.use(plugin));
     this.use(commands);
@@ -39,10 +35,13 @@ export class Bot extends GrammyBot<BotContext> {
   override errorHandler = errorHandler;
 
   async run() {
-    this.commands.setCommands(this);
+    await commands.setCommands(this);
 
     run(this, {
       runner: { fetch: { allowed_updates: ["message", "callback_query"] } },
     });
   }
 }
+
+export * from "./filters";
+export * from "./plugins";
