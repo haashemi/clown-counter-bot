@@ -22,10 +22,10 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 ## Conventions (must-follow)
 
-- Import via path aliases: `@/lib/*` → `src/lib/*`, `@/db` → `src/db/index.ts`, `@/db/*` → `src/db/*`. Never relative imports.
+- Import via path aliases: `@/lib/*` → `src/lib/*`, `@/db` → `src/db/index.ts`, `@/db/*` → `src/db/*`, `@/handlers` → `src/handlers/index.ts`, `@/handlers/*` → `src/handlers/*`. Never relative imports.
 - i18n strings live in `locales/fa.ftl` (Fluent), default locale `fa`. Access via `ctx.t("key", { vars })`. Always add the key when adding user-facing text.
-- Bot must be constructed as `new Bot(config.BOT_TOKEN)` from `@/lib/bot` (BotContext = Context & I18nFlavor). The bot runner is set up in `src/index.ts` (filters group/supergroup messages, `isClownCall` middleware).
-- Commands use `@grammyjs/commands` `Command`/`CommandGroup`, registered in `src/commands/index.ts`. Each command is a `new Command<BotContext>("name", "fa desc").addToScope(...)` in its own file.
+- Bot must be constructed as `new Bot(config.BOT_TOKEN, { plugins })` from `@/lib/bot` (BotContext = Context & I18nFlavor). The bot runner is set up in `Bot.run()` and `src/index.ts` only wires plugins + `bot.registerHandlers(...handlers)`.
+- Handlers live in `src/handlers/` (one file per feature, grouped by `static/`, `group/`, `admin/`) as a `Handler` discriminated union (`kind: "command" | "message" | "callback_query"`) defined in `src/handlers/index.ts`. Add new handlers to the `handlers` array there; `src/lib/bot/registration.ts` (`applyHandlers`) is the single place that turns them into grammY/`@grammyjs/commands` registrations. Command handlers carry `name`/`description`/`scopes`; a single `CommandGroup` is shared per bot (two groups would overwrite each other's `setMyCommands` scopes). `isClownCall` and the 🤡 flow live in `src/handlers/group/clown*.ts`; shared bot guards (e.g. `isAdmin`) in `src/lib/bot/filters/`.
 
 ## Config & env
 
@@ -50,7 +50,8 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 - `drizzle-kit generate` writes a migration snapshot into `drizzle/`; review it.
 - `groups.gifIds` / `stickerIds` are `jsonb` arrays of numeric file-id strings (parse via `parseFileId(...).id.toString()`), not raw Telegram file_ids — see `src/lib/parse-file-id.ts`.
 - `isClownCall` triggers on literal `🤡` / `دلقک` text OR a group-configured gif/sticker.
-- Cooldown stored in ms on `groups.cooldown`; default 10 min in `src/commands/clown/handler.ts`.
+- Cooldown stored in ms on `groups.cooldown`; default 10 min in `src/handlers/group/clown.ts`.
+- Verify with `pnpm test` (`vp test --run`, Vitest) and `pnpm run check` (`vp check` = format + lint — **no** TypeScript typecheck). `tsc -p tsconfig.json` is unusable as-is because the config has no `exclude` and swallows the generated `dist/`: typecheck with a config that sets `include: ["src"]`.
 
 <!--VITE PLUS START-->
 
