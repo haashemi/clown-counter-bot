@@ -8,6 +8,7 @@
     "start": "node dist/index.mjs",
     "lint": "eslint . --fix",
     "check": "vp check",
+    "test": "vp test --run",
     "archive": "rm -f dist.zip && zip -r dist.zip dist .env.example",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
@@ -35,7 +36,8 @@
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vite-node": "6.0.0",
-    "vite-plus": "0.3.0"
+    "vite-plus": "0.3.0",
+    "vitest": "4.1.11"
   },
   "packageManager": "pnpm@11.24.0"
 }
