@@ -4,8 +4,7 @@ import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
-
-const dateFormat = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" });
+import { localizeDate } from "@/lib/date";
 
 async function groupStats(ctx: BotContext) {
   const { message } = ctx;
@@ -41,9 +40,7 @@ async function groupStats(ctx: BotContext) {
 
   const clownsText = clowns.map((c) => ctx.t("cmd_stats_group_clown", { name: c.name ?? "", votes: c.count }));
 
-  const resetText = group?.resetAt
-    ? `\n\n${ctx.t("cmd_stats_reset_at", { date: dateFormat.format(group.resetAt) })}`
-    : "";
+  const resetText = group?.resetAt ? `\n\n${ctx.t("cmd_stats_reset_at", { date: localizeDate(group.resetAt) })}` : "";
 
   return await ctx.reply(ctx.t("cmd_stats_group", { clowns: clownsText.join("\n"), reset: resetText }), {
     reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },

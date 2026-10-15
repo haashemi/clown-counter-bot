@@ -6,6 +6,6 @@ export const privacyHandler: CommandHandler = {
   description: "🔒 حریم شخصی",
   scopes: [{ type: "all_private_chats" }],
   handler: async (ctx) => {
-    return await ctx.reply(ctx.t("cmd_privacy"));
+    return await ctx.replyTo(ctx.msg, ctx.t("cmd_privacy"));
   },
 };
