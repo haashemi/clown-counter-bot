@@ -4,6 +4,69 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  bot:
+    '@grammyjs/auto-retry':
+      specifier: 2.0.2
+      version: 2.0.2
+    '@grammyjs/commands':
+      specifier: 1.4.0
+      version: 1.4.0
+    '@grammyjs/i18n':
+      specifier: 1.1.2
+      version: 1.1.2
+    '@grammyjs/runner':
+      specifier: 2.0.3
+      version: 2.0.3
+    grammy:
+      specifier: 1.46.0
+      version: 1.46.0
+  db:
+    '@types/pg':
+      specifier: 8.23.1
+      version: 8.23.1
+    drizzle-kit:
+      specifier: 0.31.10
+      version: 0.31.10
+    drizzle-orm:
+      specifier: 0.45.2
+      version: 0.45.2
+    pg:
+      specifier: 8.23.0
+      version: 8.23.0
+  lint:
+    '@commitlint/cli':
+      specifier: 21.2.2
+      version: 21.2.2
+    '@commitlint/config-conventional':
+      specifier: 21.2.2
+      version: 21.2.2
+    '@commitlint/types':
+      specifier: 21.2.0
+      version: 21.2.0
+    '@fullstacksjs/eslint-config':
+      specifier: 14.8.1
+      version: 14.8.1
+    eslint:
+      specifier: 10.9.1
+      version: 10.9.1
+    prettier:
+      specifier: 3.9.6
+      version: 3.9.6
+  tooling:
+    '@types/node':
+      specifier: 26.4.0
+      version: 26.4.0
+    typescript:
+      specifier: 6.0.3
+      version: 6.0.3
+    vite-node:
+      specifier: 6.0.0
+      version: 6.0.0
+    vite-plus:
+      specifier: 0.3.0
+      version: 0.3.0
+
 overrides:
   '@deno/shim-deno': 0.19.2
 
@@ -12,66 +75,63 @@ importers:
   .:
     dependencies:
       '@grammyjs/auto-retry':
-        specifier: 2.0.2
+        specifier: catalog:bot
         version: 2.0.2(grammy@1.46.0(supports-color@7.2.0))(supports-color@7.2.0)
       '@grammyjs/commands':
-        specifier: 1.4.0
+        specifier: catalog:bot
         version: 1.4.0(grammy@1.46.0(supports-color@7.2.0))
       '@grammyjs/i18n':
-        specifier: 1.1.2
+        specifier: catalog:bot
         version: 1.1.2(grammy@1.46.0(supports-color@7.2.0))
       '@grammyjs/runner':
-        specifier: 2.0.3
+        specifier: catalog:bot
         version: 2.0.3(grammy@1.46.0(supports-color@7.2.0))
       drizzle-orm:
-        specifier: 0.45.2
+        specifier: catalog:db
         version: 0.45.2(@types/pg@8.23.1)(pg@8.23.0)
       grammy:
-        specifier: 1.46.0
+        specifier: catalog:bot
         version: 1.46.0(supports-color@7.2.0)
       pg:
-        specifier: 8.23.0
+        specifier: catalog:db
         version: 8.23.0
     devDependencies:
       '@commitlint/cli':
-        specifier: 21.2.2
+        specifier: catalog:lint
         version: 21.2.2(@types/node@26.4.0)(conventional-commits-parser@7.1.2)(typescript@6.0.3)
       '@commitlint/config-conventional':
-        specifier: 21.2.2
+        specifier: catalog:lint
         version: 21.2.2
       '@commitlint/types':
-        specifier: 21.2.0
+        specifier: catalog:lint
         version: 21.2.0
       '@fullstacksjs/eslint-config':
-        specifier: 14.8.1
+        specifier: catalog:lint
         version: 14.8.1(6e25e02dd1ada4405ad6ed95d6d553b1)
       '@types/node':
-        specifier: 26.4.0
+        specifier: catalog:tooling
         version: 26.4.0
       '@types/pg':
-        specifier: 8.23.1
+        specifier: catalog:db
         version: 8.23.1
       drizzle-kit:
-        specifier: 0.31.10
+        specifier: catalog:db
         version: 0.31.10
       eslint:
-        specifier: 10.9.1
+        specifier: catalog:lint
         version: 10.9.1(jiti@2.7.0)(supports-color@7.2.0)
       prettier:
-        specifier: 3.9.6
+        specifier: catalog:lint
         version: 3.9.6
       typescript:
-        specifier: 6.0.3
+        specifier: catalog:tooling
         version: 6.0.3
       vite-node:
-        specifier: 6.0.0
+        specifier: catalog:tooling
         version: 6.0.0(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)
       vite-plus:
-        specifier: 0.3.0
+        specifier: catalog:tooling
         version: 0.3.0(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(typescript@6.0.3)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
-      vitest:
-        specifier: 4.1.11
-        version: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
 
 packages:
 
@@ -5567,7 +5627,7 @@ snapshots:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.6(@testing-library/dom@10.4.1)
       '@vitest/browser': 4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11)
-      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -5583,7 +5643,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
@@ -5599,7 +5659,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.67.0(@typescript-eslint/parser@8.65.0(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
       typescript: 6.0.3
-      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
     transitivePeerDependencies:
       - supports-color
 
@@ -7864,7 +7924,7 @@ snapshots:
       oxfmt: 0.64.0(vite-plus@0.3.0(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(typescript@6.0.3)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)))
       oxlint: 1.79.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.0(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(typescript@6.0.3)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)))
       oxlint-tsgolint: 7.0.2001
-      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+      vitest: 4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 0.3.0
       '@voidzero-dev/vite-plus-darwin-x64': 0.3.0
@@ -7919,7 +7979,7 @@ snapshots:
       jiti: 2.7.0
       tsx: 4.23.12
 
-  vitest@4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))(vitest@4.1.11))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)):
+  vitest@4.1.11(@types/node@26.4.0)(@vitest/browser-preview@4.1.11)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)):
     dependencies:
       '@vitest/expect': 4.1.11
       '@vitest/mocker': 4.1.11(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
