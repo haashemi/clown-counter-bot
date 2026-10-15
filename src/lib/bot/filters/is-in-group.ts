@@ -1,5 +1,9 @@
+import type { MiddlewareFn } from "grammy";
+
 import type { BotContext } from "..";
 
-export function isInGroup(ctx: BotContext) {
-  return !!ctx.chat && ["group", "supergroup"].includes(ctx.chat.type);
-}
+export const isInGroup: MiddlewareFn<BotContext> = async (ctx, next) => {
+  if (ctx.chat?.type === "group" || ctx.chat?.type === "supergroup") {
+    await next();
+  }
+};
