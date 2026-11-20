@@ -1,13 +1,11 @@
 import type { BotCommandScope, Message } from "grammy/types";
 
-import type { schema } from "@/db";
+import type { GroupPatch, schema } from "@/db";
 import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
-import type { GroupPatch } from "@/lib/utils";
 
-import { db } from "@/db";
+import { db, saveGroup } from "@/db";
 import { parseFileId } from "@/lib/file-id";
-import { saveGroup } from "@/lib/utils";
 
 type FilesOfGroup = Pick<
   typeof schema.groups.$inferSelect,

@@ -22,4 +22,16 @@ async function runMigrations(): Promise<void> {
   await migrate(db, { migrationsFolder });
 }
 
-export { db, runMigrations, schema };
+type GroupPatch = Partial<Omit<typeof schema.groups.$inferInsert, "id" | "name">>;
+
+async function saveGroup(chatId: number, name: string | undefined, patch: GroupPatch): Promise<void> {
+  const values = { id: chatId, name, ...patch };
+
+  await db.insert(schema.groups).values(values).onConflictDoUpdate({
+    target: schema.groups.id,
+    set: patch,
+  });
+}
+
+export type { GroupPatch };
+export { db, runMigrations, saveGroup, schema };

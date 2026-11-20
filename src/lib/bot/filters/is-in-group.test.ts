@@ -4,13 +4,13 @@ import type { BotContext } from "..";
 
 import { isInGroup } from "./is-in-group";
 
-describe("isInGroup", () => {
+describe(isInGroup, () => {
   it.each(["group", "supergroup"])("continues %s chats", async (type) => {
     const next = vi.fn(async () => {});
 
     await isInGroup({ chat: { type } } as BotContext, next);
 
-    expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledOnce();
   });
 
   it.each([
