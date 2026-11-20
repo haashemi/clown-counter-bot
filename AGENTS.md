@@ -7,36 +7,42 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 - Node 22, TypeScript, package manager is **vpr** (never plain `npm`).
 - Bot: `grammy` + `@grammyjs/{commands,i18n,runner,auto-retry}`.
 - DB: PostgreSQL via `drizzle-orm` + `pg` (node-postgres pool, `max: 5`).
-- Env: `@t3-oss/env-core` + `zod`.
+- Env: no library — `src/lib/config.ts` uses `process.loadEnvFile` + regex checks.
+- Tests: Vitest via `vite-plus/test` (import test APIs from there).
 
 ## Commands
 
 - `vpr dev` — run TS directly from `src/index.ts` via `vite-node -w` (watch mode). `.env` is loaded by `src/lib/config.ts`, not a node flag.
-- `vpr build` — `vp pack` bundles everything into one `dist/index.js` (alwaysBundle; only Node built-ins external, target node22) and copies `drizzle/` and `locales/` into `dist/` via the `pack.copy` block.
-- `vpr start` — run the built `dist/index.js` file.
+- `vpr build` — `vp pack` bundles everything into one `dist/index.mjs` (alwaysBundle; only Node built-ins external, target node22) and copies `drizzle/` and `locales/` into `dist/` via the `pack.copy` block.
+- `vpr start` — run the built `dist/index.mjs` file.
 - `vpr archive` — zip all `dist/` content plus `.env.example` into `dist.zip` (requires the `zip` CLI).
 - `vpr lint` — `vp lint --fix`.
 - `vpr check` — `vp check` (format + lint + typecheck).
-- DB: schema changes → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). Migrations also run automatically at startup via `src/db/migrate.ts` (`runMigrations`, called from `src/index.ts` _before_ `setCommands`), so a fresh DB is migrated without a manual step.
+- DB: schema changes → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). Migrations also run automatically at startup via `runMigrations` in `src/db/index.ts` (called from `src/index.ts` _before_ `setCommands`), so a fresh DB is migrated without a manual step.
 - `vpr prepare` — install the vite-plus git-hook dispatcher (`vp hooks enable`, one-time setup).
 
 ## Conventions (must-follow)
 
 - Import via path aliases: `@/lib/*` → `src/lib/*`, `@/db` → `src/db/index.ts`, `@/db/*` → `src/db/*`, `@/handlers` → `src/handlers/index.ts`, `@/handlers/*` → `src/handlers/*`. Never relative imports.
 - i18n strings live in `locales/fa.ftl` (Fluent), default locale `fa`. Access via `ctx.t("key", { vars })`. Always add the key when adding user-facing text.
-- Bot must be constructed as `new Bot(config.BOT_TOKEN, { plugins })` from `@/lib/bot` (BotContext = Context & I18nFlavor). The bot runner is set up in `Bot.run()` and `src/index.ts` only wires plugins + `bot.registerHandlers(...handlers)`.
-- Handlers live in `src/handlers/` (one file per feature, grouped by `static/`, `group/`, `admin/`) as a `Handler` discriminated union (`kind: "command" | "message" | "callback_query"`) defined in `src/handlers/index.ts`. Add new handlers to the `handlers` array there; `src/lib/bot/registration.ts` (`applyHandlers`) is the single place that turns them into grammY/`@grammyjs/commands` registrations. Command handlers carry `name`/`description`/`scopes`; a single `CommandGroup` is shared per bot (two groups would overwrite each other's `setMyCommands` scopes). `isClownCall` and the 🤡 flow live in `src/handlers/group/clown*.ts`; shared bot guards (e.g. `isAdmin`) in `src/lib/bot/filters/`.
+- Bot must be constructed as `new Bot(config.BOT_TOKEN, { plugins })` from `@/lib/bot` (BotContext = Context & I18nFlavor & ReplyToFlavor). The bot runner is set up in `Bot.run()` and `src/index.ts` only wires plugins + `bot.registerHandlers(...handlers)`.
+- Handlers live in `src/handlers/` (one file per feature, grouped by `static/`, `group/`, `admin/`) as a `Handler` discriminated union (`kind: "command" | "message" | "callback_query"`) defined in `src/handlers/index.ts`. Add new handlers to the `handlers` array there; `src/lib/bot/registration.ts` (`applyHandlers`) is the single place that turns them into grammY/`@grammyjs/commands` registrations. Command handlers carry `name`/`description`/`scopes`; a single `CommandGroup` is shared per bot (two groups would overwrite each other's `setMyCommands` scopes). `MessageHandler.filter` is a boolean predicate (false → falls through to later handlers); `inGroup` uses grammY `chatType`. `isClownCall` and the 🤡 flow live in `src/handlers/group/clown*.ts`; shared bot guards (e.g. `isAdmin`) in `src/lib/bot/filters/`.
+- Command scopes: use `PRIVATE` / `GROUP` / `ADMIN` from `src/lib/bot/scopes.ts` (`GROUP` includes the admin scope: Telegram shows admins only the most specific list).
+- Reply with `ctx.replyTo(msg, text, other?)` — it adds `reply_parameters`; never build them by hand.
+- `sequentialize` (per chat) is the first middleware in `Bot` — handlers may assume no concurrent update for the same chat.
+- Supergroup migration: `src/handlers/group/migrate.ts` moves rows on `migrate_to_chat_id`.
 
 ## Config & env
 
-- `.env` is required at runtime, loaded from CWD by `src/lib/config.ts` (`process.loadEnvFile`) — real env vars take precedence. `BOT_TOKEN` (46 chars, `^\d{10}:.+`) and `DATABASE_URL` (must match `^postgres(ql)?://`) are validated at startup. Copy `.env.example`.
+- `.env` is required at runtime, loaded from CWD by `src/lib/config.ts` (`process.loadEnvFile`) — real env vars take precedence. `BOT_TOKEN` (`^\d+:[\w-]+$`) and `DATABASE_URL` (must match `^postgres(ql)?://`) are validated at startup. Copy `.env.example`.
 - `.env*` is gitignored (except `.env.example`).
 
 ## DB schema
 
 - Tables in `src/db/schema/tables.ts` (`users`, `groups`, `clownVotes`), relations in `relations.ts`.
 - IDs are `bigint` (`mode: "number"`) — Telegram chat/user ids exceed int32. `clownVotes.id` is an identity column. Timestamps are `timestamptz`; `gifIds`/`stickerIds` are `jsonb` string arrays.
-- The pg client is created in `src/db/index.ts`; export `db` and `schema` from `@/db`.
+- The pg client is created in `src/db/client.ts`; `@/db` exports `db`, `schema`, `runMigrations` and `saveGroup`.
+- All group writes go through `saveGroup(chatId, title, patch)` (`src/db/index.ts`) — it upserts and refreshes the stored name.
 - Schema changes: edit tables → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). `casing: "snake_case"` is enforced in both drizzle and the db client.
 - Legacy SQLite → PostgreSQL data migration: `scripts/sqlite-to-psql.sh <sqlite.db> <postgres-url>` (target schema must exist first).
 
@@ -46,12 +52,13 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 ## Gotchas
 
-- The single-file bundle (`vpr build`) keeps the `pg` family external (see `pack.deps.alwaysBundle` in `vite.config.ts`) — its submodules/optional native binding (`pg-native`) can't be inlined, so `node_modules` must ship with the deployment.
+- The bundle (`vpr build`, `deps.alwaysBundle: [/.*/]`) is self-contained: `dist/` runs without `node_modules`.
 - `drizzle-kit generate` writes a migration snapshot into `drizzle/`; review it.
-- `groups.gifIds` / `stickerIds` are `jsonb` arrays of numeric file-id strings (parse via `parseFileId(...).id.toString()`), not raw Telegram file_ids — see `src/lib/parse-file-id.ts`.
-- `isClownCall` triggers on literal `🤡` / `دلقک` text OR a group-configured gif/sticker.
+- `groups.gifIds` / `stickerIds` are `jsonb` arrays of stable media keys (`mediaKey(file_id)`), not raw Telegram file_ids — see `src/lib/media-key.ts`.
+- `isClownCall` triggers on literal `🤡` / `دلقک` (clown) or `😇` / `ستون` / `آدم عاقل` (unclown) text, OR a group-configured gif/sticker (`src/handlers/group/clown-filter.ts`).
 - Cooldown stored in ms on `groups.cooldown`; default 10 min in `src/handlers/group/clown.ts`.
-- Verify with `pnpm test` (`vp test --run`, Vitest) and `pnpm run check` (`vp check` = format + lint — **no** TypeScript typecheck). `tsc -p tsconfig.json` is unusable as-is because the config has no `exclude` and swallows the generated `dist/`: typecheck with a config that sets `include: ["src"]`.
+- Verify with `pnpm test` (`vp test --run`) and `pnpm run check` (`vp check` = format + lint + typecheck).
+- Test harness in `src/test/`: `createTestBot()` drives the real bot via `handleUpdate` with a fake Telegram API; DB tests `vi.mock("@/db/client", …)` onto PGlite (`src/test/db.ts`).
 
 <!--VITE PLUS START-->
 
