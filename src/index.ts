@@ -1,4 +1,4 @@
-import { runMigrations } from "@/db";
+import { closeDb, runMigrations } from "@/db";
 import { handlers } from "@/handlers";
 import { Bot, getLocalesDirectory, i18nMiddleware, replyToMiddleware } from "@/lib/bot";
 import { config } from "@/lib/config";
@@ -12,3 +12,5 @@ bot.registerHandlers(...handlers);
 await runMigrations();
 
 await bot.run();
+
+await closeDb();

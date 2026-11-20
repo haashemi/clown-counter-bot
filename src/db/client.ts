@@ -8,3 +8,5 @@ import * as schema from "./schema";
 const pool = new Pool({ connectionString: config.DATABASE_URL, max: 5 });
 
 export const db = drizzle({ client: pool, casing: "snake_case", schema });
+
+export const closeDb = () => pool.end();

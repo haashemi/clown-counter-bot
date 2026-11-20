@@ -42,7 +42,7 @@ function getData(ctx: BotContext): Data | null {
   };
 }
 
-/** Race-free cooldown check: returns the wait in minutes, or 0 when allowed. */
+/** Cooldown check (races prevented by `sequentialize` in `Bot`): returns the wait in minutes, or 0 when allowed. */
 async function waitMinutes({ group: { id }, voter }: Data): Promise<number> {
   const group = await db.query.groups.findFirst({
     columns: { cooldown: true },
