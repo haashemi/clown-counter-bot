@@ -22,6 +22,9 @@ catalogs:
       specifier: 1.46.0
       version: 1.46.0
   db:
+    '@electric-sql/pglite':
+      specifier: 0.5.17
+      version: 0.5.17
     '@types/pg':
       specifier: 8.23.1
       version: 8.23.1
@@ -82,7 +85,7 @@ importers:
         version: 2.0.3(grammy@1.46.0(supports-color@7.2.0))
       drizzle-orm:
         specifier: catalog:db
-        version: 0.45.2(@types/pg@8.23.1)(pg@8.23.0)
+        version: 0.45.2(@electric-sql/pglite@0.5.17)(@types/pg@8.23.1)(pg@8.23.0)
       grammy:
         specifier: catalog:bot
         version: 1.46.0(supports-color@7.2.0)
@@ -99,6 +102,9 @@ importers:
       '@commitlint/types':
         specifier: catalog:lint
         version: 21.2.0
+      '@electric-sql/pglite':
+        specifier: catalog:db
+        version: 0.5.17
       '@fullstacksjs/oxlint-config':
         specifier: catalog:lint
         version: 1.3.2(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(oxlint@1.79.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.0(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(typescript@6.0.3)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))))(supports-color@7.2.0)(tailwindcss@4.3.3)(typescript@6.0.3)
@@ -234,6 +240,9 @@ packages:
 
   '@dual-bundle/import-meta-resolve@4.2.1':
     resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
+
+  '@electric-sql/pglite@0.5.17':
+    resolution: {integrity: sha512-8SvKjiUjaU+0O0dbxjOfN+jXz14TEqDWbwDkYOW1aQ11y/ph2JvFVI27ABBo5nfw+ZfSqy4hKCNlbnbB1TDE+g==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -2848,6 +2857,8 @@ snapshots:
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
 
+  '@electric-sql/pglite@0.5.17': {}
+
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
       esbuild: 0.18.20
@@ -3795,8 +3806,9 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.12
 
-  drizzle-orm@0.45.2(@types/pg@8.23.1)(pg@8.23.0):
+  drizzle-orm@0.45.2(@electric-sql/pglite@0.5.17)(@types/pg@8.23.1)(pg@8.23.0):
     optionalDependencies:
+      '@electric-sql/pglite': 0.5.17
       '@types/pg': 8.23.1
       pg: 8.23.0
 

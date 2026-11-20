@@ -28,6 +28,7 @@
     "@commitlint/cli": "catalog:lint",
     "@commitlint/config-conventional": "catalog:lint",
     "@commitlint/types": "catalog:lint",
+    "@electric-sql/pglite": "catalog:db",
     "@fullstacksjs/oxlint-config": "catalog:lint",
     "@types/node": "catalog:tooling",
     "@types/pg": "catalog:db",
