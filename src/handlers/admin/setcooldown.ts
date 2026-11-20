@@ -18,13 +18,18 @@ async function setCooldown(ctx: BotContext) {
     });
   }
 
-  const minutes = Number(args);
+  // Persian (۰-۹) and Arabic-Indic (٠-٩) digits → ASCII.
+  const digits = args
+    .replace(/[\u06f0-\u06f9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660));
 
-  if (Number.isNaN(minutes) || !Number.isInteger(minutes)) {
+  if (!/^\d+$/.test(digits)) {
     return ctx.reply(ctx.t("cmd_setcooldown_invalid_number"), {
       reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
     });
   }
+
+  const minutes = Number(digits);
 
   if (minutes < MIN_COOLDOWN || minutes > MAX_COOLDOWN) {
     return ctx.reply(ctx.t("cmd_setcooldown_out_of_range", { min: MIN_COOLDOWN, max: MAX_COOLDOWN }), {

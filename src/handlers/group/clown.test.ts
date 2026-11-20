@@ -101,6 +101,15 @@ describe("clown voting", () => {
     expect(t.replies()).toHaveLength(0);
   });
 
+  it("ignores 🤡 that only replies to a forum topic's creation message", async () => {
+    const t = createTestBot();
+    const topic = { ...message({ from: bob }), forum_topic_created: { name: "t", icon_color: 0 } };
+    await t.send(groupMessage({ from: alice, text: "🤡", replyTo: topic }));
+
+    await expect(votes()).resolves.toHaveLength(0);
+    expect(t.replies()).toHaveLength(0);
+  });
+
   it("ignores unrelated text replies", async () => {
     const t = createTestBot();
     await t.send(groupMessage({ from: alice, text: "hello", replyTo: message({ from: bob, text: "hi" }) }));

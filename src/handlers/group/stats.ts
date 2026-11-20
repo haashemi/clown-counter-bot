@@ -6,6 +6,8 @@ import type { BotContext } from "@/lib/bot";
 import { db, schema } from "@/db";
 import { localizeDate } from "@/lib/date";
 
+const STATS_LIMIT = 30;
+
 async function groupStats(ctx: BotContext) {
   const { message } = ctx;
   if (!message) return;
@@ -30,7 +32,8 @@ async function groupStats(ctx: BotContext) {
     .leftJoin(schema.users, eq(schema.users.id, schema.clownVotes.clownId))
     .groupBy(schema.users.id)
     .where(and(...conditions))
-    .orderBy(desc(sql`coalesce(sum(${schema.clownVotes.quantity}), 0)`));
+    .orderBy(desc(sql`coalesce(sum(${schema.clownVotes.quantity}), 0)`))
+    .limit(STATS_LIMIT);
 
   if (clowns.length === 0) {
     return ctx.reply(ctx.t("cmd_stats_no_clown"), {

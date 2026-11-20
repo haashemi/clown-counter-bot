@@ -28,7 +28,9 @@ function getData(ctx: BotContext): Data | null {
   if (!ctx.message) return null;
 
   const voter = ctx.message.from;
-  const clown = ctx.message.reply_to_message?.from;
+  const replied = ctx.message.reply_to_message;
+  // In forum topics every message "replies" to the topic-created service message.
+  const clown = replied?.forum_topic_created ? undefined : replied?.from;
 
   if (!clown || !voter) return null;
 

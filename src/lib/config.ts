@@ -23,8 +23,8 @@ async function loadConfig(): Promise<Config> {
     DATABASE_URL: env["DATABASE_URL"] ?? "",
   };
 
-  if (config.BOT_TOKEN?.length !== 46 || !/^\d{10}:.+/.test(config.BOT_TOKEN)) {
-    throw new Error("Invalid BOT_TOKEN: expected 46 chars matching /^\\d{10}:.+/");
+  if (!/^\d+:[\w-]+$/.test(config.BOT_TOKEN)) {
+    throw new Error("Invalid BOT_TOKEN: expected <bot id>:<secret> from @BotFather");
   }
 
   if (!config.DATABASE_URL || !/^postgres(?:ql)?:\/\/\S+/.test(config.DATABASE_URL)) {
