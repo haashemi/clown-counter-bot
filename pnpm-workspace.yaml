@@ -19,6 +19,7 @@ catalogs:
 
   db:
     drizzle-orm: 0.45.2
+    "@electric-sql/pglite": 0.5.17
     drizzle-kit: 0.31.10
     pg: 8.23.0
     "@types/pg": 8.23.1

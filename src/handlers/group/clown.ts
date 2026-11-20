@@ -76,7 +76,7 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
   const rejection =
     clown.id === ctx.me.id ? "is_me" : clown.is_bot ? "is_bot" : voter.id === clown.id ? "is_you" : null;
 
-  if (rejection) return await reply(ctx.t(`${prefix}_${rejection}`));
+  if (rejection) return reply(ctx.t(`${prefix}_${rejection}`));
 
   // Upsert both users in one statement, and the group concurrently.
   await Promise.all([
@@ -96,7 +96,7 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
   const waitMin = await waitMinutes(data);
 
   if (waitMin > 0) {
-    return await reply(ctx.t(`${prefix}_wait`, { waitMin }));
+    return reply(ctx.t(`${prefix}_wait`, { waitMin }));
   }
 
   await db.insert(schema.clownVotes).values({
@@ -106,7 +106,7 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
     quantity,
   });
 
-  return await reply(ctx.t(`${prefix}`, { clown: clown.name, voter: voter.name }));
+  return reply(ctx.t(prefix, { clown: clown.name, voter: voter.name }));
 }
 
 function clownHandler(ctx: BotContext) {
@@ -140,7 +140,7 @@ export const clownMessageHandler: MessageHandler = {
   kind: "message",
   inGroup: true,
   filter: isClownCall,
-  handler: async (ctx) => (ctx.clownCall === "clown" ? await clownHandler(ctx) : await unclownHandler(ctx)),
+  handler: async (ctx) => (ctx.clownCall === "clown" ? clownHandler(ctx) : unclownHandler(ctx)),
 };
 
 export const clownHandlers: Handler[] = [cmdClown, cmdUnclown, clownMessageHandler];

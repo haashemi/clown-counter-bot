@@ -26,7 +26,7 @@ async function clownOfTheDay(ctx: BotContext) {
   });
 
   if (recent && sameDay(recent.votedAt)) {
-    return await ctx.reply(ctx.t("cmd_clown_of_the_day_wait"), {
+    return ctx.reply(ctx.t("cmd_clown_of_the_day_wait"), {
       reply_parameters: { message_id: message.message_id, chat_id: groupId },
     });
   }
@@ -39,7 +39,7 @@ async function clownOfTheDay(ctx: BotContext) {
     .where(eq(schema.clownVotes.groupId, groupId));
 
   if (rows.length === 0) {
-    return await ctx.reply(ctx.t("cmd_clown_of_the_day_no_users"), {
+    return ctx.reply(ctx.t("cmd_clown_of_the_day_no_users"), {
       reply_parameters: { message_id: message.message_id, chat_id: groupId },
     });
   }
@@ -54,7 +54,7 @@ async function clownOfTheDay(ctx: BotContext) {
     quantity,
   });
 
-  return await ctx.reply(ctx.t("cmd_clown_of_the_day", { clown: clown.name, quantity }), {
+  return ctx.reply(ctx.t("cmd_clown_of_the_day", { clown: clown.name, quantity }), {
     reply_parameters: { message_id: message.message_id, chat_id: groupId },
   });
 }

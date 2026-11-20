@@ -19,7 +19,7 @@ async function promptResetStats(ctx: BotContext) {
     .text(ctx.t("cmd_resetstats_confirm_yes"), yesData)
     .text(ctx.t("cmd_resetstats_confirm_no"), noData);
 
-  return await ctx.reply(ctx.t("cmd_resetstats_confirm"), {
+  return ctx.reply(ctx.t("cmd_resetstats_confirm"), {
     reply_markup: keyboard,
     reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
   });
@@ -27,10 +27,10 @@ async function promptResetStats(ctx: BotContext) {
 
 async function confirmResetStats(ctx: BotContext) {
   const { callbackQuery } = ctx;
-  if (!callbackQuery || !callbackQuery.message || !ctx.chat) return;
+  if (!callbackQuery?.message || !ctx.chat) return;
 
   if (!(await isAdmin(ctx))) {
-    return await ctx.answerCallbackQuery({
+    return ctx.answerCallbackQuery({
       text: ctx.t("cmd_resetstats_not_admin"),
       show_alert: true,
     });
@@ -46,7 +46,7 @@ async function confirmResetStats(ctx: BotContext) {
 
   await ctx.answerCallbackQuery();
 
-  return await ctx.editMessageText(ctx.t("cmd_resetstats_done"), { reply_markup: new InlineKeyboard() });
+  return ctx.editMessageText(ctx.t("cmd_resetstats_done"), { reply_markup: new InlineKeyboard() });
 }
 
 async function denyResetStats(ctx: BotContext) {
@@ -55,7 +55,7 @@ async function denyResetStats(ctx: BotContext) {
 
   await ctx.answerCallbackQuery();
 
-  return await ctx.editMessageText(ctx.t("cmd_resetstats_cancelled"), { reply_markup: new InlineKeyboard() });
+  return ctx.editMessageText(ctx.t("cmd_resetstats_cancelled"), { reply_markup: new InlineKeyboard() });
 }
 
 export const resetStatsHandler: CommandHandler = {

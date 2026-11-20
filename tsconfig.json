@@ -31,9 +31,12 @@
 
     "paths": {
       "@/db": ["./src/db/index.ts"],
+      "@/db/*": ["./src/db/*"],
       "@/handlers": ["./src/handlers/index.ts"],
       "@/handlers/*": ["./src/handlers/*"],
-      "@/lib/*": ["./src/lib/*"]
+      "@/lib/*": ["./src/lib/*"],
+      "@/test/*": ["./src/test/*"]
     }
-  }
+  },
+  "include": ["src", "*.ts"]
 }

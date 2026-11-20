@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import type { BotContext } from "..";
 
 import { isInGroup } from "./is-in-group";
 
 describe(isInGroup, () => {
-  it.each(["group", "supergroup"])("continues %s chats", async (type) => {
+  it.each(["group", "supergroup"])("continues %s chats", async (type: string) => {
     const next = vi.fn(async () => {});
 
     await isInGroup({ chat: { type } } as BotContext, next);
@@ -13,7 +13,7 @@ describe(isInGroup, () => {
     expect(next).toHaveBeenCalledOnce();
   });
 
-  it.each([
+  it.each<[string, { type: string } | undefined]>([
     ["private", { type: "private" }],
     ["missing", undefined],
   ])("stops %s chats", async (_name, chat) => {

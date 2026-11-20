@@ -5,9 +5,10 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
 
   fmt: { printWidth: 120, ignorePatterns: ["dist/**", "drizzle/**"] },
+  // @ts-expect-error -- @fullstacksjs/oxlint-config bundles different oxlint types than vite-plus (TS2769); remove when versions align.
   lint: defineOxlintConfig({
     modules: { nodejs: true, vitest: true },
-    options: { esm: false },
+    options: { esm: false, typeAware: true, typeCheck: true },
     ignorePatterns: ["dist/**", "drizzle/**"],
   }),
   pack: {
