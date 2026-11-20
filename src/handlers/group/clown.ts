@@ -28,7 +28,9 @@ function getData(ctx: BotContext): Data | null {
   if (!ctx.message) return null;
 
   const voter = ctx.message.from;
-  const clown = ctx.message.reply_to_message?.from;
+  const replied = ctx.message.reply_to_message;
+  // In forum topics every message "replies" to the topic-created service message.
+  const clown = replied?.forum_topic_created ? undefined : replied?.from;
 
   if (!clown || !voter) return null;
 
@@ -40,7 +42,7 @@ function getData(ctx: BotContext): Data | null {
   };
 }
 
-/** Race-free cooldown check: returns the wait in minutes, or 0 when allowed. */
+/** Cooldown check (races prevented by `sequentialize` in `Bot`): returns the wait in minutes, or 0 when allowed. */
 async function waitMinutes({ group: { id }, voter }: Data): Promise<number> {
   const group = await db.query.groups.findFirst({
     columns: { cooldown: true },

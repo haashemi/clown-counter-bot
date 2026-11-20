@@ -1,7 +1,7 @@
 import type { Context, Middleware } from "grammy";
 
 import { CommandGroup } from "@grammyjs/commands";
-import { run } from "@grammyjs/runner";
+import { run, sequentialize } from "@grammyjs/runner";
 import { Bot as GrammyBot } from "grammy";
 
 import type { Handler } from "@/handlers";
@@ -35,6 +35,8 @@ export class Bot extends GrammyBot<BotContext> {
   constructor(token: string, { plugins }: BotOptions) {
     super(token);
 
+    // Updates of one chat run one at a time (no check-then-write races); other chats stay concurrent.
+    this.use(sequentialize((ctx) => ctx.chat?.id.toString()));
     plugins.forEach((plugin) => this.use(plugin));
     this.use(this.commands);
 
@@ -49,12 +51,19 @@ export class Bot extends GrammyBot<BotContext> {
     return this;
   }
 
+  /** Starts polling and resolves after SIGINT/SIGTERM has stopped the runner. */
   async run() {
     await this.commands.setCommands(this);
 
-    run(this, {
+    const runner = run(this, {
       runner: { fetch: { allowed_updates: ["message", "callback_query"] } },
     });
+
+    const stop = () => void runner.stop();
+    process.once("SIGINT", stop);
+    process.once("SIGTERM", stop);
+
+    await runner.task();
   }
 }
 

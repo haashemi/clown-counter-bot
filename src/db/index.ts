@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { findAvailablePath } from "@/lib/utils";
 
-import { db } from "./client";
+import { closeDb, db } from "./client";
 import * as schema from "./schema";
 
 async function runMigrations(): Promise<void> {
@@ -28,4 +28,4 @@ async function saveGroup(chatId: number, name: string | undefined, patch: GroupP
 }
 
 export type { GroupPatch };
-export { db, runMigrations, saveGroup, schema };
+export { closeDb, db, runMigrations, saveGroup, schema };

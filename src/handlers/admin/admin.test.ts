@@ -32,6 +32,24 @@ describe("admin commands", () => {
     expect(t.replies()).toHaveLength(0);
   });
 
+  it.each([
+    ["۱۰", 600000],
+    ["٥", 300000],
+  ])("accepts /setcooldown %s in Persian/Arabic digits", async (arg, expected) => {
+    const t = createTestBot({ admins: [admin.id] });
+    await t.send(groupMessage({ from: admin, text: `/setcooldown ${arg}` }));
+
+    expect((await group())?.cooldown).toBe(expected);
+  });
+
+  it.each(["1e1", "0x10", "2.5"])("rejects /setcooldown %s", async (arg) => {
+    const t = createTestBot({ admins: [admin.id] });
+    await t.send(groupMessage({ from: admin, text: `/setcooldown ${arg}` }));
+
+    await expect(group()).resolves.toBeNull();
+    expect(t.replies()).toHaveLength(1);
+  });
+
   it("rejects an out-of-range cooldown", async () => {
     const t = createTestBot({ admins: [admin.id] });
     await t.send(groupMessage({ from: admin, text: "/setcooldown 61" }));

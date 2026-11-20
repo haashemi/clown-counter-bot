@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { schema } from "@/db";
-import { parseFileId } from "@/lib/file-id";
+import { mediaKey } from "@/lib/media-key";
 import { createTestBot, groupMessage, ME, message, user } from "@/test/bot";
 import { testDb, resetDb } from "@/test/db";
 import { encodeFileId } from "@/test/file-id";
@@ -101,6 +101,15 @@ describe("clown voting", () => {
     expect(t.replies()).toHaveLength(0);
   });
 
+  it("ignores 🤡 that only replies to a forum topic's creation message", async () => {
+    const t = createTestBot();
+    const topic = { ...message({ from: bob }), forum_topic_created: { name: "t", icon_color: 0 } };
+    await t.send(groupMessage({ from: alice, text: "🤡", replyTo: topic }));
+
+    await expect(votes()).resolves.toHaveLength(0);
+    expect(t.replies()).toHaveLength(0);
+  });
+
   it("ignores unrelated text replies", async () => {
     const t = createTestBot();
     await t.send(groupMessage({ from: alice, text: "hello", replyTo: message({ from: bob, text: "hi" }) }));
@@ -120,9 +129,7 @@ describe("clown voting", () => {
 
   it("records a configured gif as a vote", async () => {
     const fileId = encodeFileId({ typeId: 10, id: 42n, fileReference: Buffer.from("ref") });
-    await testDb
-      .insert(schema.groups)
-      .values({ id: CHAT_ID, name: "Test Group", gifIds: [parseFileId(fileId).id.toString()] });
+    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group", gifIds: [mediaKey(fileId)] });
 
     const t = createTestBot();
     const animation = { file_id: fileId, file_unique_id: "u", width: 1, height: 1, duration: 1 };

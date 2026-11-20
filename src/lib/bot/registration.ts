@@ -1,24 +1,11 @@
 import type { CommandGroup } from "@grammyjs/commands";
-import type { Bot as GrammyBot, MiddlewareFn } from "grammy";
+import type { Bot as GrammyBot } from "grammy";
 
 import { Command } from "@grammyjs/commands";
 
-import type { Handler, MessageHandler } from "@/handlers";
+import type { Handler } from "@/handlers";
 
 import type { BotContext } from ".";
-
-import { isInGroup } from "./filters";
-
-/** Middlewares a single `MessageHandler` registers, in execution order. */
-function messageChain(handler: MessageHandler): MiddlewareFn<BotContext>[] {
-  const chain: MiddlewareFn<BotContext>[] = [];
-
-  if (handler.inGroup) chain.push(isInGroup);
-  if (handler.filter) chain.push(handler.filter);
-  chain.push(handler.handler);
-
-  return chain;
-}
 
 /** Binds every handler to `bot`; command handlers go into the single, shared `commands` group. */
 export function applyHandlers(
@@ -35,9 +22,14 @@ export function applyHandlers(
         break;
       }
 
-      case "message":
-        bot.on("message", ...messageChain(handler));
+      case "message": {
+        // `chatType` and `filter` call `next()` on mismatch, so later handlers still see the update.
+        const matches = handler.filter ?? (() => true);
+        const messages = bot.on("message");
+        if (handler.inGroup) messages.chatType(["group", "supergroup"]).filter(matches, handler.handler);
+        else messages.filter(matches, handler.handler);
         break;
+      }
 
       case "callback_query":
         bot.callbackQuery(handler.data, handler.handler);

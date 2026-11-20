@@ -4,6 +4,7 @@ import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
+import { isSameDay } from "@/lib/date";
 
 const MIN_QUANTITY = 5;
 const MAX_QUANTITY = 20;
@@ -14,24 +15,20 @@ async function clownOfTheDay(ctx: BotContext) {
 
   const groupId = message.chat.id;
 
-  // Once per group per day: blocks if the latest system vote (voterId IS NULL)
-  // falls on the same calendar day as now (server's local timezone).
-  const sameDay = (d: Date, now = new Date()) =>
-    d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-
+  // Once per group per day: blocks if the latest system vote (voterId IS NULL) is from today (TIME_ZONE).
   const recent = await db.query.clownVotes.findFirst({
     columns: { votedAt: true },
     where: (f, o) => o.and(o.eq(f.groupId, groupId), o.isNull(f.voterId)),
     orderBy: (f, o) => [o.desc(f.votedAt)],
   });
 
-  if (recent && sameDay(recent.votedAt)) {
+  if (recent && isSameDay(recent.votedAt, new Date())) {
     return ctx.reply(ctx.t("cmd_clown_of_the_day_wait"), {
       reply_parameters: { message_id: message.message_id, chat_id: groupId },
     });
   }
 
-  // Candidates: users who ever appeared in this group's clown_votes (as voter or clown).
+  // Candidates: users who were clowned in this group at least once.
   const rows = await db
     .selectDistinct({ id: schema.users.id, name: schema.users.name })
     .from(schema.clownVotes)
