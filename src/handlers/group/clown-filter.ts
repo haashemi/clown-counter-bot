@@ -1,5 +1,3 @@
-import type { MiddlewareFn } from "grammy";
-
 import type { BotContext, ClownCall } from "@/lib/bot";
 
 import { db } from "@/db";
@@ -38,17 +36,17 @@ async function matchMediaCall(ctx: BotContext): Promise<ClownCall | null> {
   return matchMedia(group, parseFileId(fileId).id.toString());
 }
 
-/** Matcher for the 🤡/دلقک flow: sets `ctx.clownCall` and continues, or stops the chain. */
-export const isClownCall: MiddlewareFn<BotContext> = async (ctx, next) => {
-  if (!ctx.msg || !ctx.chat) return null;
+/** Matcher for the 🤡/دلقک flow: sets `ctx.clownCall` and returns true, or returns false. */
+export async function isClownCall(ctx: BotContext): Promise<boolean> {
+  if (!ctx.msg || !ctx.chat) return false;
 
   const call = matchText(ctx.msg.text) ?? (await matchMediaCall(ctx));
 
-  if (!call) return null;
+  if (!call) return false;
 
   // False positive: each grammY update gets a fresh ctx; there is no shared mutable state.
   // eslint-disable-next-line require-atomic-updates
   ctx.clownCall = call;
 
-  return next();
-};
+  return true;
+}

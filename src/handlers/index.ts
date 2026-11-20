@@ -1,4 +1,3 @@
-import type { MiddlewareFn } from "grammy";
 import type { BotCommandScope } from "grammy/types";
 
 import type { BotContext } from "@/lib/bot";
@@ -8,6 +7,7 @@ import { resetStatsCallbacks, resetStatsHandler } from "./admin/resetstats";
 import { setCooldownHandler } from "./admin/setcooldown";
 import { clownHandlers } from "./group/clown";
 import { clownOfTheDayHandler } from "./group/clownoftheday";
+import { migrateHandler } from "./group/migrate";
 import { statsHandler } from "./group/stats";
 import { privacyHandler } from "./static/privacy";
 import { sourceHandler } from "./static/source";
@@ -31,8 +31,8 @@ export interface MessageHandler {
   kind: "message";
   /** Restrict the handler to group/supergroup chats. */
   inGroup?: boolean;
-  /** Optional matcher that runs before `handler`; it must call `next()` for `handler` to run. */
-  filter?: MiddlewareFn<BotContext>;
+  /** Optional predicate; when it returns false the update falls through to later handlers. */
+  filter?: (ctx: BotContext) => Promise<boolean> | boolean;
   handler: HandlerFn;
 }
 
@@ -52,6 +52,7 @@ export const handlers: Handler[] = [
   ...clownHandlers,
   statsHandler,
   clownOfTheDayHandler,
+  migrateHandler,
 
   // Admins
   ...mediaHandlers,
