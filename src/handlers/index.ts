@@ -9,9 +9,7 @@ import { clownHandlers } from "./group/clown";
 import { clownOfTheDayHandler } from "./group/clownoftheday";
 import { migrateHandler } from "./group/migrate";
 import { statsHandler } from "./group/stats";
-import { privacyHandler } from "./static/privacy";
-import { sourceHandler } from "./static/source";
-import { startHandler } from "./static/start";
+import { staticHandlers } from "./static";
 
 export type Handler = CallbackQueryHandler | CommandHandler | MessageHandler;
 
@@ -44,9 +42,7 @@ export interface CallbackQueryHandler {
 
 export const handlers: Handler[] = [
   // Private chats
-  startHandler,
-  sourceHandler,
-  privacyHandler,
+  ...staticHandlers,
 
   // Groups
   ...clownHandlers,

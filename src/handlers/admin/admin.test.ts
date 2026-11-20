@@ -85,4 +85,54 @@ describe("admin commands", () => {
 
     expect((await group())?.gifIds).toHaveLength(1);
   });
+
+  it("refreshes the group name on every write", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    await t.send(groupMessage({ from: admin, chatTitle: "Old", text: "/setcooldown 5" }));
+    await t.send(groupMessage({ from: admin, chatTitle: "New", text: "/setcooldown 5" }));
+
+    expect((await group())?.name).toBe("New");
+  });
+
+  const gif = (id: bigint) => ({
+    file_id: encodeFileId({ typeId: 10, id, fileReference: Buffer.from("ref") }),
+    file_unique_id: `u${id}`,
+    width: 1,
+    height: 1,
+    duration: 1,
+  });
+
+  it("removes a stored gif with /removegif", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    const animation = gif(42n);
+
+    await t.send(groupMessage({ from: admin, text: "/setgif", replyTo: message({ from: member, animation }) }));
+    await t.send(groupMessage({ from: admin, text: "/removegif", replyTo: message({ from: member, animation }) }));
+
+    expect((await group())?.gifIds).toBeNull();
+  });
+
+  it("rejects /setsticker on an animation", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    const animation = gif(42n);
+
+    await t.send(groupMessage({ from: admin, text: "/setsticker", replyTo: message({ from: member, animation }) }));
+
+    await expect(group()).resolves.toBeNull();
+    expect(t.replies()).toHaveLength(1);
+  });
+
+  it("stops /setgif at the limit", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+
+    for (const id of [1n, 2n, 3n, 4n]) {
+      // oxlint-disable-next-line no-await-in-loop -- order matters: each /setgif sees the previous one.
+      await t.send(
+        groupMessage({ from: admin, text: "/setgif", replyTo: message({ from: member, animation: gif(id) }) }),
+      );
+    }
+
+    expect((await group())?.gifIds).toHaveLength(3);
+    expect(t.replies()).toHaveLength(4);
+  });
 });

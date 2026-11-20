@@ -4,6 +4,7 @@ import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
+import { GROUP } from "@/lib/bot";
 import { isSameDay } from "@/lib/date";
 
 const MIN_QUANTITY = 5;
@@ -23,9 +24,7 @@ async function clownOfTheDay(ctx: BotContext) {
   });
 
   if (recent && isSameDay(recent.votedAt, new Date())) {
-    return ctx.reply(ctx.t("cmd_clown_of_the_day_wait"), {
-      reply_parameters: { message_id: message.message_id, chat_id: groupId },
-    });
+    return ctx.replyTo(message, ctx.t("cmd_clown_of_the_day_wait"));
   }
 
   // Candidates: users who were clowned in this group at least once.
@@ -36,9 +35,7 @@ async function clownOfTheDay(ctx: BotContext) {
     .where(eq(schema.clownVotes.groupId, groupId));
 
   if (rows.length === 0) {
-    return ctx.reply(ctx.t("cmd_clown_of_the_day_no_users"), {
-      reply_parameters: { message_id: message.message_id, chat_id: groupId },
-    });
+    return ctx.replyTo(message, ctx.t("cmd_clown_of_the_day_no_users"));
   }
 
   const clown = rows[Math.floor(Math.random() * rows.length)]!;
@@ -51,15 +48,13 @@ async function clownOfTheDay(ctx: BotContext) {
     quantity,
   });
 
-  return ctx.reply(ctx.t("cmd_clown_of_the_day", { clown: clown.name, quantity }), {
-    reply_parameters: { message_id: message.message_id, chat_id: groupId },
-  });
+  return ctx.replyTo(message, ctx.t("cmd_clown_of_the_day", { clown: clown.name, quantity }));
 }
 
 export const clownOfTheDayHandler: CommandHandler = {
   kind: "command",
   name: "clownoftheday",
   description: "👑 دلقک روز",
-  scopes: [{ type: "all_group_chats" }, { type: "all_chat_administrators" }],
+  scopes: GROUP,
   handler: clownOfTheDay,
 };

@@ -18,13 +18,13 @@ async function runMigrations(): Promise<void> {
 
 type GroupPatch = Partial<Omit<typeof schema.groups.$inferInsert, "id" | "name">>;
 
-async function saveGroup(chatId: number, name: string | undefined, patch: GroupPatch): Promise<void> {
-  const values = { id: chatId, name, ...patch };
+async function saveGroup(chatId: number, name: string | undefined, patch: GroupPatch = {}): Promise<void> {
+  const set = name === undefined ? patch : { ...patch, name };
+  const insert = db.insert(schema.groups).values({ id: chatId, name, ...patch });
 
-  await db.insert(schema.groups).values(values).onConflictDoUpdate({
-    target: schema.groups.id,
-    set: patch,
-  });
+  await (Object.keys(set).length === 0
+    ? insert.onConflictDoNothing()
+    : insert.onConflictDoUpdate({ target: schema.groups.id, set }));
 }
 
 export type { GroupPatch };

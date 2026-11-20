@@ -1,153 +1,71 @@
-import type { BotCommandScope, Message } from "grammy/types";
-
-import type { GroupPatch, schema } from "@/db";
+import type { GroupPatch } from "@/db";
 import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, saveGroup } from "@/db";
+import { ADMIN } from "@/lib/bot";
 import { mediaKey } from "@/lib/media-key";
-
-type FilesOfGroup = Pick<
-  typeof schema.groups.$inferSelect,
-  "gifIds" | "stickerIds" | "unclownGifIds" | "unclownStickerIds"
->;
 
 const MAX_MEDIA = 3;
 
+type MediaColumn = "gifIds" | "stickerIds" | "unclownGifIds" | "unclownStickerIds";
+
 interface MediaKind {
+  /** `/set<key>`, `/remove<key>` and i18n keys `cmd_set<key>*`, `cmd_remove<key>*`. */
   key: string;
+  column: MediaColumn;
+  media: "animation" | "sticker";
   description: string;
-  getFileId: (msg: Message) => string | undefined;
-  getIds: (group: FilesOfGroup | undefined) => string[];
-  apply: (value: string[] | null) => GroupPatch;
-}
-
-interface MediaSpec {
-  /** i18n key prefix, e.g. `cmd_setgif` → `cmd_setgif_invalid`, `cmd_setgif_limit`, ... */
-  key: string;
-  max: number;
-  getFileId: (msg: Message) => string | undefined;
-  getIds: (group: FilesOfGroup | undefined) => string[];
-  apply: (value: string[] | null) => GroupPatch;
-}
-
-function createSetMediaHandler(spec: MediaSpec) {
-  return async (ctx: BotContext) => {
-    const { msg } = ctx;
-    if (!msg) return;
-
-    const replyTo = msg.reply_to_message;
-
-    if (!replyTo) return ctx.replyTo(msg, ctx.t(spec.key));
-
-    const rawFileId = spec.getFileId(replyTo);
-    if (!rawFileId) return ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
-
-    const group = await db.query.groups.findFirst({
-      where: (f, o) => o.eq(f.id, msg.chat.id),
-    });
-
-    const existing = spec.getIds(group);
-
-    if (existing.length >= spec.max) return ctx.replyTo(msg, ctx.t(`${spec.key}_limit`));
-
-    const updated = [...existing, mediaKey(rawFileId)];
-
-    await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated) });
-
-    return ctx.replyTo(msg, ctx.t(`${spec.key}_done`, { count: updated.length, max: spec.max }));
-  };
-}
-
-function createRemoveMediaHandler(spec: MediaSpec) {
-  return async (ctx: BotContext) => {
-    const { msg } = ctx;
-    if (!msg) return;
-
-    const replyTo = msg.reply_to_message;
-
-    if (!replyTo) return ctx.replyTo(msg, ctx.t(`${spec.key}_usage`));
-
-    const rawFileId = spec.getFileId(replyTo);
-    if (!rawFileId) return ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
-
-    const group = await db.query.groups.findFirst({
-      where: (f, o) => o.eq(f.id, msg.chat.id),
-    });
-
-    const existing = spec.getIds(group);
-
-    if (existing.length === 0) return ctx.replyTo(msg, ctx.t(`${spec.key}_empty`));
-
-    const fileId = mediaKey(rawFileId);
-    if (!existing.includes(fileId)) return ctx.replyTo(msg, ctx.t(`${spec.key}_not_found`));
-
-    const updated = existing.filter((id) => id !== fileId);
-
-    await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated.length > 0 ? updated : null) });
-
-    return ctx.replyTo(msg, ctx.t(`${spec.key}_done`));
-  };
 }
 
 const KINDS: MediaKind[] = [
-  {
-    key: "gif",
-    description: "گیف دلقک کننده گروه",
-    getFileId: (msg) => msg.animation?.file_id,
-    getIds: (group) => group?.gifIds ?? [],
-    apply: (value) => ({ gifIds: value }),
-  },
-  {
-    key: "sticker",
-    description: "استیکر دلقک کننده گروه",
-    getFileId: (msg) => msg.sticker?.file_id,
-    getIds: (group) => group?.stickerIds ?? [],
-    apply: (value) => ({ stickerIds: value }),
-  },
-  {
-    key: "unclowngif",
-    description: "گیف کسر دلقک گروه",
-    getFileId: (msg) => msg.animation?.file_id,
-    getIds: (group) => group?.unclownGifIds ?? [],
-    apply: (value) => ({ unclownGifIds: value }),
-  },
-  {
-    key: "unclownsticker",
-    description: "استیکر کسر دلقک گروه",
-    getFileId: (msg) => msg.sticker?.file_id,
-    getIds: (group) => group?.unclownStickerIds ?? [],
-    apply: (value) => ({ unclownStickerIds: value }),
-  },
+  { key: "gif", column: "gifIds", media: "animation", description: "گیف دلقک کننده گروه" },
+  { key: "sticker", column: "stickerIds", media: "sticker", description: "استیکر دلقک کننده گروه" },
+  { key: "unclowngif", column: "unclownGifIds", media: "animation", description: "گیف کسر دلقک گروه" },
+  { key: "unclownsticker", column: "unclownStickerIds", media: "sticker", description: "استیکر کسر دلقک گروه" },
 ];
 
-function toSpec(kind: MediaKind, verb: "remove" | "set"): MediaSpec {
-  return {
-    key: `cmd_${verb}${kind.key}`,
-    max: MAX_MEDIA,
-    getFileId: kind.getFileId,
-    getIds: kind.getIds,
-    apply: kind.apply,
+function mediaHandler({ key, column, media }: MediaKind, verb: "remove" | "set") {
+  const prefix = `cmd_${verb}${key}`;
+
+  return async (ctx: BotContext) => {
+    const { msg } = ctx;
+    if (!msg) return;
+
+    const target = msg.reply_to_message;
+    if (!target) return ctx.replyTo(msg, ctx.t(verb === "set" ? prefix : `${prefix}_usage`));
+
+    const fileId = target[media]?.file_id;
+    if (!fileId) return ctx.replyTo(msg, ctx.t(`${prefix}_invalid`));
+
+    const group = await db.query.groups.findFirst({ where: (f, o) => o.eq(f.id, msg.chat.id) });
+    const existing = group?.[column] ?? [];
+    const id = mediaKey(fileId);
+
+    if (verb === "set") {
+      if (existing.length >= MAX_MEDIA) return ctx.replyTo(msg, ctx.t(`${prefix}_limit`));
+      const updated = [...existing, id];
+      await saveGroup(msg.chat.id, msg.chat.title, { [column]: updated } satisfies GroupPatch);
+      return ctx.replyTo(msg, ctx.t(`${prefix}_done`, { count: updated.length, max: MAX_MEDIA }));
+    }
+
+    if (existing.length === 0) return ctx.replyTo(msg, ctx.t(`${prefix}_empty`));
+    if (!existing.includes(id)) return ctx.replyTo(msg, ctx.t(`${prefix}_not_found`));
+
+    const updated = existing.filter((x) => x !== id);
+    await saveGroup(msg.chat.id, msg.chat.title, {
+      [column]: updated.length > 0 ? updated : null,
+    } satisfies GroupPatch);
+    return ctx.replyTo(msg, ctx.t(`${prefix}_done`));
   };
 }
 
-export const mediaHandlers: CommandHandler[] = KINDS.flatMap((kind) => {
-  const scopes: BotCommandScope[] = [{ type: "all_chat_administrators" }];
-
-  return [
-    {
-      kind: "command",
-      name: `set${kind.key}`,
-      description: `🛡 تنظیم ${kind.description}`,
-      scopes,
-      handler: createSetMediaHandler(toSpec(kind, "set")),
-    },
-    {
-      kind: "command",
-      name: `remove${kind.key}`,
-      description: `🛡 حذف ${kind.description}`,
-      scopes,
-      handler: createRemoveMediaHandler(toSpec(kind, "remove")),
-    },
-  ] satisfies CommandHandler[];
-});
+export const mediaHandlers: CommandHandler[] = KINDS.flatMap((kind) =>
+  (["set", "remove"] as const).map((verb) => ({
+    kind: "command",
+    name: `${verb}${kind.key}`,
+    description: `🛡 ${verb === "set" ? "تنظیم" : "حذف"} ${kind.description}`,
+    scopes: ADMIN,
+    handler: mediaHandler(kind, verb),
+  })),
+);

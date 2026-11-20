@@ -3,8 +3,8 @@ import { InlineKeyboard } from "grammy";
 import type { CallbackQueryHandler, CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
-import { db, schema } from "@/db";
-import { isAdmin } from "@/lib/bot";
+import { saveGroup } from "@/db";
+import { ADMIN, isAdmin } from "@/lib/bot";
 
 const RESET_CALLBACK = "resetstats";
 
@@ -19,10 +19,7 @@ async function promptResetStats(ctx: BotContext) {
     .text(ctx.t("cmd_resetstats_confirm_yes"), yesData)
     .text(ctx.t("cmd_resetstats_confirm_no"), noData);
 
-  return ctx.reply(ctx.t("cmd_resetstats_confirm"), {
-    reply_markup: keyboard,
-    reply_parameters: { message_id: msg.message_id, chat_id: msg.chat.id },
-  });
+  return ctx.replyTo(msg, ctx.t("cmd_resetstats_confirm"), { reply_markup: keyboard });
 }
 
 async function confirmResetStats(ctx: BotContext) {
@@ -36,13 +33,7 @@ async function confirmResetStats(ctx: BotContext) {
     });
   }
 
-  await db
-    .insert(schema.groups)
-    .values({ id: ctx.chat.id, name: ctx.chat.title, resetAt: new Date() })
-    .onConflictDoUpdate({
-      target: schema.groups.id,
-      set: { name: ctx.chat.title, resetAt: new Date() },
-    });
+  await saveGroup(ctx.chat.id, ctx.chat.title, { resetAt: new Date() });
 
   await ctx.answerCallbackQuery();
 
@@ -62,7 +53,7 @@ export const resetStatsHandler: CommandHandler = {
   kind: "command",
   name: "resetstats",
   description: "🔄 ریست آمار دلقک‌ها",
-  scopes: [{ type: "all_chat_administrators" }],
+  scopes: ADMIN,
   handler: promptResetStats,
 };
 

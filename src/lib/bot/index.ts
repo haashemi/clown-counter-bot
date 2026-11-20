@@ -1,5 +1,6 @@
 import type { Context, Middleware } from "grammy";
 
+import { autoRetry } from "@grammyjs/auto-retry";
 import { CommandGroup } from "@grammyjs/commands";
 import { run, sequentialize } from "@grammyjs/runner";
 import { Bot as GrammyBot } from "grammy";
@@ -10,7 +11,6 @@ import type { I18nFlavor } from "./plugins/i18n";
 import type { ReplyToFlavor } from "./plugins/reply-to";
 
 import { errorHandler } from "./error-handler";
-import { autoRetryPlugin } from "./plugins/auto-retry";
 import { applyHandlers } from "./registration";
 
 export type ClownCall = "clown" | "unclown";
@@ -40,7 +40,7 @@ export class Bot extends GrammyBot<BotContext> {
     plugins.forEach((plugin) => this.use(plugin));
     this.use(this.commands);
 
-    this.api.config.use(autoRetryPlugin());
+    this.api.config.use(autoRetry());
   }
 
   override errorHandler = errorHandler;
@@ -69,3 +69,4 @@ export class Bot extends GrammyBot<BotContext> {
 
 export * from "./filters";
 export * from "./plugins";
+export * from "./scopes";

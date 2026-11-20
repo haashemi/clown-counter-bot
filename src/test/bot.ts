@@ -43,8 +43,8 @@ export function user(id: number, firstName: string): User {
   return { id, is_bot: false, first_name: firstName };
 }
 
-function chat(id: number, type: "group" | "private" | "supergroup"): Chat {
-  return type === "private" ? { id, type, first_name: "x" } : { id, type, title: "Test Group" };
+function chat(id: number, type: "group" | "private" | "supergroup", title = "Test Group"): Chat {
+  return type === "private" ? { id, type, first_name: "x" } : { id, type, title };
 }
 
 export function createTestBot({ admins = [] }: { admins?: number[] } = {}) {
@@ -90,6 +90,7 @@ export function createTestBot({ admins = [] }: { admins?: number[] } = {}) {
 export interface GroupMessageOptions {
   chatId?: number;
   chatType?: "group" | "private" | "supergroup";
+  chatTitle?: string;
   from: User;
   text?: string;
   replyTo?: Message;
@@ -100,6 +101,7 @@ export interface GroupMessageOptions {
 export function message({
   chatId = -100123,
   chatType = "supergroup",
+  chatTitle,
   from,
   text,
   replyTo,
@@ -109,7 +111,7 @@ export function message({
   const msg: Record<string, unknown> = {
     message_id: nextMessageId(),
     date: Math.floor(Date.now() / 1000),
-    chat: chat(chatId, chatType),
+    chat: chat(chatId, chatType, chatTitle),
     from,
   };
 

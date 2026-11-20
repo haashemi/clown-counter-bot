@@ -4,6 +4,7 @@ import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, schema } from "@/db";
+import { GROUP } from "@/lib/bot";
 import { localizeDate } from "@/lib/date";
 
 const STATS_LIMIT = 30;
@@ -36,24 +37,20 @@ async function groupStats(ctx: BotContext) {
     .limit(STATS_LIMIT);
 
   if (clowns.length === 0) {
-    return ctx.reply(ctx.t("cmd_stats_no_clown"), {
-      reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
-    });
+    return ctx.replyTo(message, ctx.t("cmd_stats_no_clown"));
   }
 
   const clownsText = clowns.map((c) => ctx.t("cmd_stats_group_clown", { name: c.name ?? "", votes: c.count }));
 
   const resetText = group?.resetAt ? `\n\n${ctx.t("cmd_stats_reset_at", { date: localizeDate(group.resetAt) })}` : "";
 
-  return ctx.reply(ctx.t("cmd_stats_group", { clowns: clownsText.join("\n"), reset: resetText }), {
-    reply_parameters: { message_id: message.message_id, chat_id: message.chat.id },
-  });
+  return ctx.replyTo(message, ctx.t("cmd_stats_group", { clowns: clownsText.join("\n"), reset: resetText }));
 }
 
 export const statsHandler: CommandHandler = {
   kind: "command",
   name: "stats",
   description: "📊 آمار دلقک‌شماری",
-  scopes: [{ type: "all_group_chats" }, { type: "all_chat_administrators" }],
+  scopes: GROUP,
   handler: groupStats,
 };

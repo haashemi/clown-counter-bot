@@ -1,23 +1,21 @@
-import type { BotCommandScope, User } from "grammy/types";
+import type { User } from "grammy/types";
 
 import { and, desc, eq, sql } from "drizzle-orm";
 
 import type { CommandHandler, Handler, MessageHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
-import { db, schema } from "@/db";
+import { db, saveGroup, schema } from "@/db";
+import { GROUP } from "@/lib/bot";
 
 import { isClownCall } from "./clown-filter";
 
 const DEFAULT_COOLDOWN = 10 * 60 * 1000;
 
-const GROUP_SCOPES: BotCommandScope[] = [{ type: "all_group_chats" }, { type: "all_chat_administrators" }];
-
 interface Data {
-  messageId: number;
   group: { id: number; name: string };
-  voter: User & { name: string };
-  clown: User & { name: string };
+  voter: { id: number; name: string };
+  clown: { id: number; name: string; isBot: boolean };
 }
 
 function displayName(user: User): string {
@@ -35,10 +33,9 @@ function getData(ctx: BotContext): Data | null {
   if (!clown || !voter) return null;
 
   return {
-    messageId: ctx.message.message_id,
     group: { id: ctx.message.chat.id, name: ctx.message.chat.title ?? "" },
-    voter: { ...voter, name: displayName(voter) },
-    clown: { ...clown, name: displayName(clown) },
+    voter: { id: voter.id, name: displayName(voter) },
+    clown: { id: clown.id, name: displayName(clown), isBot: clown.is_bot },
   };
 }
 
@@ -69,14 +66,13 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
   const data = getData(ctx);
   if (!data) return;
 
-  const { messageId, group, voter, clown } = data;
+  const { group, voter, clown } = data;
 
   const prefix = quantity > 0 ? "cmd_clown" : "cmd_unclown";
 
-  const reply = (text: string) => ctx.reply(text, { reply_parameters: { message_id: messageId, chat_id: group.id } });
+  const reply = (text: string) => ctx.replyTo(ctx.msg, text);
 
-  const rejection =
-    clown.id === ctx.me.id ? "is_me" : clown.is_bot ? "is_bot" : voter.id === clown.id ? "is_you" : null;
+  const rejection = clown.id === ctx.me.id ? "is_me" : clown.isBot ? "is_bot" : voter.id === clown.id ? "is_you" : null;
 
   if (rejection) return reply(ctx.t(`${prefix}_${rejection}`));
 
@@ -89,10 +85,7 @@ async function voteHandler(ctx: BotContext, quantity: -1 | 1) {
         { id: clown.id, name: clown.name },
       ])
       .onConflictDoUpdate({ target: schema.users.id, set: { name: sql`excluded.name` } }),
-    db
-      .insert(schema.groups)
-      .values({ id: group.id, name: group.name })
-      .onConflictDoUpdate({ target: schema.groups.id, set: { name: group.name } }),
+    saveGroup(group.id, group.name),
   ]);
 
   const waitMin = await waitMinutes(data);
@@ -124,7 +117,7 @@ export const cmdClown: CommandHandler = {
   kind: "command",
   name: "clown",
   description: "🤡 عه یه دلقک!",
-  scopes: GROUP_SCOPES,
+  scopes: GROUP,
   handler: clownHandler,
 };
 
@@ -133,7 +126,7 @@ export const cmdUnclown: CommandHandler = {
   kind: "command",
   name: "unclown",
   description: "💀 یکی آدم شده",
-  scopes: GROUP_SCOPES,
+  scopes: GROUP,
   handler: unclownHandler,
 };
 
