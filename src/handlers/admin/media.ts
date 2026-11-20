@@ -38,10 +38,10 @@ function createSetMediaHandler(spec: MediaSpec) {
 
     const replyTo = msg.reply_to_message;
 
-    if (!replyTo) return await ctx.replyTo(msg, ctx.t(spec.key));
+    if (!replyTo) return ctx.replyTo(msg, ctx.t(spec.key));
 
     const rawFileId = spec.getFileId(replyTo);
-    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
+    if (!rawFileId) return ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
 
     const group = await db.query.groups.findFirst({
       where: (f, o) => o.eq(f.id, msg.chat.id),
@@ -49,13 +49,13 @@ function createSetMediaHandler(spec: MediaSpec) {
 
     const existing = spec.getIds(group);
 
-    if (existing.length >= spec.max) return await ctx.replyTo(msg, ctx.t(`${spec.key}_limit`));
+    if (existing.length >= spec.max) return ctx.replyTo(msg, ctx.t(`${spec.key}_limit`));
 
     const updated = [...existing, parseFileId(rawFileId).id.toString()];
 
     await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated) });
 
-    return await ctx.replyTo(msg, ctx.t(`${spec.key}_done`, { count: updated.length, max: spec.max }));
+    return ctx.replyTo(msg, ctx.t(`${spec.key}_done`, { count: updated.length, max: spec.max }));
   };
 }
 
@@ -66,10 +66,10 @@ function createRemoveMediaHandler(spec: MediaSpec) {
 
     const replyTo = msg.reply_to_message;
 
-    if (!replyTo) return await ctx.replyTo(msg, ctx.t(`${spec.key}_usage`));
+    if (!replyTo) return ctx.replyTo(msg, ctx.t(`${spec.key}_usage`));
 
     const rawFileId = spec.getFileId(replyTo);
-    if (!rawFileId) return await ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
+    if (!rawFileId) return ctx.replyTo(msg, ctx.t(`${spec.key}_invalid`));
 
     const group = await db.query.groups.findFirst({
       where: (f, o) => o.eq(f.id, msg.chat.id),
@@ -77,16 +77,16 @@ function createRemoveMediaHandler(spec: MediaSpec) {
 
     const existing = spec.getIds(group);
 
-    if (existing.length === 0) return await ctx.replyTo(msg, ctx.t(`${spec.key}_empty`));
+    if (existing.length === 0) return ctx.replyTo(msg, ctx.t(`${spec.key}_empty`));
 
     const fileId = parseFileId(rawFileId).id.toString();
-    if (!existing.includes(fileId)) return await ctx.replyTo(msg, ctx.t(`${spec.key}_not_found`));
+    if (!existing.includes(fileId)) return ctx.replyTo(msg, ctx.t(`${spec.key}_not_found`));
 
     const updated = existing.filter((id) => id !== fileId);
 
     await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated.length > 0 ? updated : null) });
 
-    return await ctx.replyTo(msg, ctx.t(`${spec.key}_done`));
+    return ctx.replyTo(msg, ctx.t(`${spec.key}_done`));
   };
 }
 

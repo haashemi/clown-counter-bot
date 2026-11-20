@@ -50,5 +50,5 @@ export const isClownCall: MiddlewareFn<BotContext> = async (ctx, next) => {
   // eslint-disable-next-line require-atomic-updates
   ctx.clownCall = call;
 
-  return await next();
+  return next();
 };
