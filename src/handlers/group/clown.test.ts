@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { schema } from "@/db";
-import { parseFileId } from "@/lib/file-id";
+import { mediaKey } from "@/lib/media-key";
 import { createTestBot, groupMessage, ME, message, user } from "@/test/bot";
 import { testDb, resetDb } from "@/test/db";
 import { encodeFileId } from "@/test/file-id";
@@ -129,9 +129,7 @@ describe("clown voting", () => {
 
   it("records a configured gif as a vote", async () => {
     const fileId = encodeFileId({ typeId: 10, id: 42n, fileReference: Buffer.from("ref") });
-    await testDb
-      .insert(schema.groups)
-      .values({ id: CHAT_ID, name: "Test Group", gifIds: [parseFileId(fileId).id.toString()] });
+    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group", gifIds: [mediaKey(fileId)] });
 
     const t = createTestBot();
     const animation = { file_id: fileId, file_unique_id: "u", width: 1, height: 1, duration: 1 };

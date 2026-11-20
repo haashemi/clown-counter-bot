@@ -5,7 +5,7 @@ import type { CommandHandler } from "@/handlers";
 import type { BotContext } from "@/lib/bot";
 
 import { db, saveGroup } from "@/db";
-import { parseFileId } from "@/lib/file-id";
+import { mediaKey } from "@/lib/media-key";
 
 type FilesOfGroup = Pick<
   typeof schema.groups.$inferSelect,
@@ -51,7 +51,7 @@ function createSetMediaHandler(spec: MediaSpec) {
 
     if (existing.length >= spec.max) return ctx.replyTo(msg, ctx.t(`${spec.key}_limit`));
 
-    const updated = [...existing, parseFileId(rawFileId).id.toString()];
+    const updated = [...existing, mediaKey(rawFileId)];
 
     await saveGroup(msg.chat.id, msg.chat.title, { ...spec.apply(updated) });
 
@@ -79,7 +79,7 @@ function createRemoveMediaHandler(spec: MediaSpec) {
 
     if (existing.length === 0) return ctx.replyTo(msg, ctx.t(`${spec.key}_empty`));
 
-    const fileId = parseFileId(rawFileId).id.toString();
+    const fileId = mediaKey(rawFileId);
     if (!existing.includes(fileId)) return ctx.replyTo(msg, ctx.t(`${spec.key}_not_found`));
 
     const updated = existing.filter((id) => id !== fileId);

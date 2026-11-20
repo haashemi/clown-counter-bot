@@ -8,7 +8,7 @@ interface EncodeOptions {
   subVersion?: number;
 }
 
-function tlString(bytes: Buffer): Buffer {
+export function tlString(bytes: Buffer): Buffer {
   const header =
     bytes.length < 254
       ? Buffer.from([bytes.length])
@@ -17,7 +17,7 @@ function tlString(bytes: Buffer): Buffer {
   return Buffer.concat([raw, Buffer.alloc((4 - (raw.length % 4)) % 4)]);
 }
 
-function rleEncode(input: Buffer): Buffer {
+export function rleEncode(input: Buffer): Buffer {
   const out: number[] = [];
   let zeros = 0;
 
@@ -40,7 +40,7 @@ function rleEncode(input: Buffer): Buffer {
   return Buffer.from(out);
 }
 
-/** Builds a Telegram Bot API file_id (test-only inverse of `parseFileId`). */
+/** Builds a Telegram Bot API file_id (test-only inverse of `mediaKey`). */
 export function encodeFileId({
   typeId,
   dcId = 4,

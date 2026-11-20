@@ -1,7 +1,7 @@
 import type { BotContext, ClownCall } from "@/lib/bot";
 
 import { db } from "@/db";
-import { parseFileId } from "@/lib/file-id";
+import { mediaKey } from "@/lib/media-key";
 
 const clownTexts = ["🤡", "دلقک"];
 const unclownTexts = ["😇", "ستون", "آدم عاقل"];
@@ -33,7 +33,7 @@ async function matchMediaCall(ctx: BotContext): Promise<ClownCall | null> {
 
   if (!group) return null;
 
-  return matchMedia(group, parseFileId(fileId).id.toString());
+  return matchMedia(group, mediaKey(fileId));
 }
 
 /** Matcher for the 🤡/دلقک flow: sets `ctx.clownCall` and returns true, or returns false. */
