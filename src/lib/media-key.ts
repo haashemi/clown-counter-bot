@@ -38,3 +38,19 @@ export function mediaKey(fileId: string): string {
   if (typeId & WEB_LOCATION_FLAG) return "0";
   return data.readBigInt64LE(pos).toString();
 }
+
+export type TriggerMedia = "animation" | "sticker";
+
+export interface MessageMedia {
+  key: string;
+  fileId: string;
+  media: TriggerMedia;
+}
+
+/** The gif/sticker a message carries, with its stable key; null for anything else. */
+export function messageMedia(msg: { animation?: { file_id: string }; sticker?: { file_id: string } } | undefined) {
+  const media: TriggerMedia | undefined = msg?.animation ? "animation" : msg?.sticker ? "sticker" : undefined;
+  const fileId = media && msg?.[media]?.file_id;
+  if (!media || !fileId) return null;
+  return { key: mediaKey(fileId), fileId, media } satisfies MessageMedia;
+}

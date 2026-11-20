@@ -129,12 +129,17 @@ describe("clown voting", () => {
 
   it("records a configured gif as a vote", async () => {
     const fileId = encodeFileId({ typeId: 10, id: 42n, fileReference: Buffer.from("ref") });
-    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group", gifIds: [mediaKey(fileId)] });
+    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group" });
+    await testDb
+      .insert(schema.groupTriggers)
+      .values({ groupId: CHAT_ID, key: mediaKey(fileId), media: "animation", action: "clown" });
 
     const t = createTestBot();
     const animation = { file_id: fileId, file_unique_id: "u", width: 1, height: 1, duration: 1 };
     await t.send(groupMessage({ from: alice, animation, replyTo: message({ from: bob, text: "hi" }) }));
 
     await expect(votes()).resolves.toHaveLength(1);
+    // A legacy row without a file_id picks it up from the first match.
+    await expect(testDb.select().from(schema.groupTriggers)).resolves.toMatchObject([{ fileId }]);
   });
 });

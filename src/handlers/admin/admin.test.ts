@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { callbackQuery, createTestBot, groupMessage, message, user } from "@/test/bot";
+import type { Message } from "grammy/types";
+
+import { schema } from "@/db";
+import { callbackQuery, createTestBot, groupMessage, ME, message, user } from "@/test/bot";
 import { testDb, resetDb } from "@/test/db";
 import { encodeFileId } from "@/test/file-id";
 
 // PGlite and node-postgres drizzle instances share the query API but not a nominal type.
 vi.mock(import("@/db/client"), async () => ({ db: (await import("@/test/db")).testDb as never }));
 
+const CHAT_ID = -100123;
 const admin = user(10, "Admin");
 const member = user(11, "Member");
 
@@ -76,16 +80,6 @@ describe("admin commands", () => {
     expect((await group())?.resetAt).not.toBeNull();
   });
 
-  it("stores a gif with /setgif", async () => {
-    const t = createTestBot({ admins: [admin.id] });
-    const fileId = encodeFileId({ typeId: 10, id: 42n, fileReference: Buffer.from("ref") });
-    const animation = { file_id: fileId, file_unique_id: "u", width: 1, height: 1, duration: 1 };
-
-    await t.send(groupMessage({ from: admin, text: "/setgif", replyTo: message({ from: member, animation }) }));
-
-    expect((await group())?.gifIds).toHaveLength(1);
-  });
-
   it("refreshes the group name on every write", async () => {
     const t = createTestBot({ admins: [admin.id] });
     await t.send(groupMessage({ from: admin, chatTitle: "Old", text: "/setcooldown 5" }));
@@ -102,37 +96,117 @@ describe("admin commands", () => {
     duration: 1,
   });
 
-  it("removes a stored gif with /removegif", async () => {
+  const triggers = () => testDb.select().from(schema.groupTriggers);
+
+  /** Runs /trigger on `media` and returns the bot's prompt, as the callback query will carry it. */
+  async function triggerPrompt(t: ReturnType<typeof createTestBot>, media: Message) {
+    await t.send(groupMessage({ from: admin, text: "/trigger", replyTo: media }));
+    const sent = t.calls.findLast((c) => c.method === "sendMessage")!;
+    expect(sent.payload["reply_parameters"]).toMatchObject({ message_id: media.message_id });
+    return message({ from: ME, text: "?", replyTo: media });
+  }
+
+  it("sets, switches and removes a gif with /trigger buttons", async () => {
     const t = createTestBot({ admins: [admin.id] });
-    const animation = gif(42n);
+    const media = message({ from: member, animation: gif(42n) });
+    const promptMsg = await triggerPrompt(t, media);
 
-    await t.send(groupMessage({ from: admin, text: "/setgif", replyTo: message({ from: member, animation }) }));
-    await t.send(groupMessage({ from: admin, text: "/removegif", replyTo: message({ from: member, animation }) }));
+    await t.send(callbackQuery({ from: admin, data: "trigger:set:clown", message: promptMsg }));
+    await expect(triggers()).resolves.toMatchObject([{ key: "42", media: "animation", action: "clown" }]);
 
-    expect((await group())?.gifIds).toBeNull();
+    await t.send(callbackQuery({ from: admin, data: "trigger:set:unclown", message: promptMsg }));
+    await expect(triggers()).resolves.toMatchObject([{ key: "42", action: "unclown" }]);
+
+    await t.send(callbackQuery({ from: admin, data: "trigger:remove", message: promptMsg }));
+    await expect(triggers()).resolves.toHaveLength(0);
   });
 
-  it("rejects /setsticker on an animation", async () => {
+  it("detects stickers without a separate command", async () => {
     const t = createTestBot({ admins: [admin.id] });
-    const animation = gif(42n);
+    const sticker = { ...gif(7n), type: "regular", is_animated: false, is_video: false } as const;
+    const promptMsg = await triggerPrompt(t, message({ from: member, sticker }));
 
-    await t.send(groupMessage({ from: admin, text: "/setsticker", replyTo: message({ from: member, animation }) }));
+    await t.send(callbackQuery({ from: admin, data: "trigger:set:clown", message: promptMsg }));
+    await expect(triggers()).resolves.toMatchObject([{ media: "sticker", action: "clown" }]);
+  });
 
-    await expect(group()).resolves.toBeNull();
+  it("shows usage for /trigger without a gif or sticker", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    await t.send(groupMessage({ from: admin, text: "/trigger", replyTo: message({ from: member, text: "hi" }) }));
+
     expect(t.replies()).toHaveLength(1);
+    await expect(triggers()).resolves.toHaveLength(0);
   });
 
-  it("stops /setgif at the limit", async () => {
+  it("ignores trigger buttons pressed by non-admins", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    const promptMsg = await triggerPrompt(t, message({ from: member, animation: gif(42n) }));
+
+    await t.send(callbackQuery({ from: member, data: "trigger:set:clown", message: promptMsg }));
+
+    expect(t.calls.findLast((c) => c.method === "answerCallbackQuery")?.payload["show_alert"]).toBe(true);
+    await expect(triggers()).resolves.toHaveLength(0);
+  });
+
+  it("does not count the same gif twice", async () => {
+    const t = createTestBot({ admins: [admin.id] });
+    const promptMsg = await triggerPrompt(t, message({ from: member, animation: gif(42n) }));
+
+    await t.send(callbackQuery({ from: admin, data: "trigger:set:clown", message: promptMsg }));
+    await t.send(callbackQuery({ from: admin, data: "trigger:set:clown", message: promptMsg }));
+
+    await expect(triggers()).resolves.toHaveLength(1);
+  });
+
+  it("stops at the per-kind limit", async () => {
     const t = createTestBot({ admins: [admin.id] });
 
     for (const id of [1n, 2n, 3n, 4n]) {
-      // oxlint-disable-next-line no-await-in-loop -- order matters: each /setgif sees the previous one.
-      await t.send(
-        groupMessage({ from: admin, text: "/setgif", replyTo: message({ from: member, animation: gif(id) }) }),
-      );
+      // oxlint-disable-next-line no-await-in-loop -- order matters: each one sees the previous ones.
+      const promptMsg = await triggerPrompt(t, message({ from: member, animation: gif(id) }));
+      // oxlint-disable-next-line no-await-in-loop
+      await t.send(callbackQuery({ from: admin, data: "trigger:set:clown", message: promptMsg }));
     }
 
-    expect((await group())?.gifIds).toHaveLength(3);
-    expect(t.replies()).toHaveLength(4);
+    await expect(triggers()).resolves.toHaveLength(3);
+    expect(t.calls.findLast((c) => c.method === "answerCallbackQuery")?.payload["show_alert"]).toBe(true);
+  });
+
+  it("lists triggers with /triggers and deletes one from its button", async () => {
+    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group" });
+    await testDb.insert(schema.groupTriggers).values([
+      { groupId: CHAT_ID, key: "1", fileId: gif(1n).file_id, media: "animation", action: "clown" },
+      { groupId: CHAT_ID, key: "2", fileId: null, media: "sticker", action: "unclown" },
+    ]);
+    const t = createTestBot({ admins: [admin.id] });
+
+    await t.send(groupMessage({ from: admin, text: "/triggers" }));
+
+    expect(t.calls.filter((c) => c.method === "sendAnimation")).toHaveLength(1);
+    // The legacy row (no file_id) is a text entry, followed by the summary.
+    expect(t.replies()).toHaveLength(2);
+
+    await t.send(callbackQuery({ from: admin, data: "trigger:del:1", message: message({ from: ME, text: "?" }) }));
+    await expect(triggers()).resolves.toMatchObject([{ key: "2" }]);
+    expect(t.calls.some((c) => c.method === "deleteMessage")).toBe(true);
+  });
+
+  it("clears every trigger only after confirmation", async () => {
+    await testDb.insert(schema.groups).values({ id: CHAT_ID, name: "Test Group" });
+    await testDb.insert(schema.groupTriggers).values([
+      { groupId: CHAT_ID, key: "1", media: "animation", action: "clown" },
+      { groupId: CHAT_ID, key: "2", media: "sticker", action: "unclown" },
+    ]);
+    const t = createTestBot({ admins: [admin.id] });
+    const summary = message({ from: ME, text: "?" });
+
+    await t.send(callbackQuery({ from: admin, data: "trigger:clear", message: summary }));
+    await expect(triggers()).resolves.toHaveLength(2);
+
+    await t.send(callbackQuery({ from: member, data: "trigger:clear:yes", message: summary }));
+    await expect(triggers()).resolves.toHaveLength(2);
+
+    await t.send(callbackQuery({ from: admin, data: "trigger:clear:yes", message: summary }));
+    await expect(triggers()).resolves.toHaveLength(0);
   });
 });

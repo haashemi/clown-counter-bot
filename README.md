@@ -20,8 +20,8 @@ Reply to someone's message with one of these:
 
 | Command / trigger                                                        | Description                                    |
 | ------------------------------------------------------------------------ | ---------------------------------------------- |
-| `/clown`, `🤡`, `دلقک`, or the group's clown gif/sticker                 | Adds a clown point to the replied user         |
-| `/unclown`, `😇`, `ستون`, `آدم عاقل`, or the group's unclown gif/sticker | Removes a clown point from the replied user    |
+| `/clown`, `🤡`, `دلقک`, or one of the group's clown gifs/stickers        | Adds a clown point to the replied user         |
+| `/unclown`, `😇`, `ستون`, `آدم عاقل`, or one of the group's unclown ones | Removes a clown point from the replied user    |
 | `/stats`                                                                 | Lists the group's clowns in descending order   |
 | `/clownoftheday`                                                         | Picks a random clown of the day (once per day) |
 
@@ -29,14 +29,12 @@ Text and gif/sticker triggers only work when the bot can read group messages: ma
 
 ### Group admins
 
-| Command                                       | Description                                                    |
-| --------------------------------------------- | -------------------------------------------------------------- |
-| `/setgif`, `/removegif`                       | Reply to a gif to add/remove it as a clown trigger (max 3)     |
-| `/setsticker`, `/removesticker`               | Reply to a sticker to add/remove it as a clown trigger (max 3) |
-| `/setunclowngif`, `/removeunclowngif`         | Same, for unclown gifs                                         |
-| `/setunclownsticker`, `/removeunclownsticker` | Same, for unclown stickers                                     |
-| `/setcooldown <0–60>`                         | Sets the minutes a user must wait between votes                |
-| `/resetstats`                                 | Resets the group's stats (asks for confirmation)               |
+| Command               | Description                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `/trigger`            | Reply to a gif/sticker, then pick clown / unclown / remove with the buttons (max 3 per kind) |
+| `/triggers`           | Lists the group's gifs/stickers, each with a delete button, plus "delete all"                |
+| `/setcooldown <0–60>` | Sets the minutes a user must wait between votes                                              |
+| `/resetstats`         | Resets the group's stats (asks for confirmation)                                             |
 
 ## Self Host
 

@@ -8,10 +8,6 @@ export const users = t.pgTable("users", {
 export const groups = t.pgTable("groups", {
   id: t.bigint({ mode: "number" }).notNull().primaryKey(),
   name: t.text(),
-  gifIds: t.jsonb().$type<string[]>(),
-  stickerIds: t.jsonb().$type<string[]>(),
-  unclownGifIds: t.jsonb().$type<string[]>(),
-  unclownStickerIds: t.jsonb().$type<string[]>(),
   resetAt: t.timestamp({ withTimezone: true, mode: "date" }),
   cooldown: t.integer(),
 });
@@ -36,4 +32,21 @@ export const clownVotes = t.pgTable(
     t.index("clown_votes_group_voter_idx").on(table.groupId, table.voterId, table.votedAt),
     t.index("clown_votes_group_idx").on(table.groupId),
   ],
+);
+
+/** Gifs/stickers that count as a clown/unclown call in a group. `key` is `mediaKey(file_id)`. */
+export const groupTriggers = t.pgTable(
+  "group_triggers",
+  {
+    groupId: t
+      .bigint({ mode: "number" })
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    key: t.text().notNull(),
+    /** Last seen file_id, for re-sending the media in `/triggers`. Null for rows migrated from the old jsonb columns. */
+    fileId: t.text(),
+    media: t.text({ enum: ["animation", "sticker"] }).notNull(),
+    action: t.text({ enum: ["clown", "unclown"] }).notNull(),
+  },
+  (table) => [t.primaryKey({ columns: [table.groupId, table.key] })],
 );

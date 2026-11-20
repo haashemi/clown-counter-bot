@@ -29,6 +29,13 @@
       "when": 1788551000769,
       "tag": "0003_handy_lady_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795214665068,
+      "tag": "0004_group_triggers",
+      "breakpoints": true
     }
   ]
 }

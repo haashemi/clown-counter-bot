@@ -24,7 +24,8 @@ async function seed() {
     { id: 1, name: "Alice" },
     { id: 2, name: "Bob" },
   ]);
-  await testDb.insert(schema.groups).values({ id: OLD_ID, name: "Old", cooldown: 0, gifIds: ["7"], resetAt: null });
+  await testDb.insert(schema.groups).values({ id: OLD_ID, name: "Old", cooldown: 0, resetAt: null });
+  await testDb.insert(schema.groupTriggers).values({ groupId: OLD_ID, key: "7", media: "animation", action: "clown" });
   await testDb.insert(schema.clownVotes).values([
     { groupId: OLD_ID, voterId: 1, clownId: 2 },
     { groupId: OLD_ID, voterId: 1, clownId: 2 },
@@ -43,7 +44,8 @@ describe("group → supergroup migration", () => {
 
     const groups = await testDb.select().from(schema.groups);
     expect(groups).toHaveLength(1);
-    expect(groups[0]).toMatchObject({ id: NEW_ID, cooldown: 0, gifIds: ["7"] });
+    expect(groups[0]).toMatchObject({ id: NEW_ID, cooldown: 0 });
+    await expect(testDb.select().from(schema.groupTriggers)).resolves.toMatchObject([{ groupId: NEW_ID, key: "7" }]);
 
     const votes = await testDb.select().from(schema.clownVotes);
     expect(votes.map((v) => v.groupId)).toEqual([NEW_ID, NEW_ID]);

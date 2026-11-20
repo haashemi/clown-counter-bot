@@ -81,157 +81,61 @@ cmd_clown_of_the_day_no_users =
 cmd_clown_of_the_day = {"\u200F"}👑 دلقک امروز: { $clown } — با { $quantity } رای دلقکی!
 
 # Admin commands
-cmd_setgif =
-    🪄 گیف کاستوم برای دلقک کردن!
+cmd_trigger_usage =
+    🪄 گیف/استیکر دلقک
 
-    اگه ادمین گروهی، همین دستور setgif/ رو روی یک گیف ریپلای کن تا اون گیف به عنوان «دلقک کننده» ست بشه.
-    📌 حداکثر ۳ گیف قابل تنظیم است.
+    اگه ادمین گروهی، دستور /trigger رو روی یک گیف یا استیکر ریپلای کن تا انتخاب کنی «دلقک کننده» باشه یا «دلقک‌بردار».
+    📋 لیست و حذف همه: /triggers
+    📌 از هر نوع حداکثر { $max } تا.
 
-cmd_setgif_invalid =
-    😐 ادمین دلقک ندیده بودیم که دیدیم.
+cmd_trigger_prompt =
+    🪄 تنظیم { $media ->
+        [sticker] استیکر
+       *[animation] گیف
+    }
 
-    یَره، موگوم روی «گیف» ریپلای کن. این چیه ریپلای کردی روش الان؟
+    { $state ->
+        [clown] وضعیت فعلی: 🤡 دلقک کننده
+        [unclown] وضعیت فعلی: 😇 دلقک‌بردار
+       *[none] وضعیت فعلی: تنظیم نشده
+    }
 
-cmd_setgif_limit =
-    😐 ظرفیت گیف‌ها پره!
+trigger_btn_clown = 🤡 دلقک کننده
+trigger_btn_unclown = 😇 دلقک‌بردار
+trigger_btn_remove = 🗑 حذف
 
-    حداکثر ۳ گیف قابل تنظیمه. اول یکی رو با /removegif حذف کن.
+trigger_saved = ✅ ذخیره شد.
+trigger_removed = 🗑 حذف شد.
+trigger_limit = 😐 ظرفیت پره! از هر نوع حداکثر { $max } تا. اول یکی رو با /triggers حذف کن.
+trigger_gone = 😐 پیام گیف/استیکر پیدا نشد. دوباره /trigger رو روش بزن.
+trigger_not_admin = 😐 فقط ادمین‌ها می‌تونن گیف/استیکرها رو تغییر بدن.
 
-cmd_setgif_done =
-    👀 گیف جدید برای دلقک کردن تنظیم شد. ({ $count } از { $max })
+cmd_triggers_empty =
+    😐 هیچ گیف یا استیکری تنظیم نشده.
 
-cmd_removegif_usage =
-    🪄 حذف گیف دلقک کننده!
+    روی یکی ریپلای کن و /trigger رو بزن.
 
-    روی یک گیف ریپلای کن و دستور /removegif رو بزن تا اون گیف حذف بشه.
+cmd_triggers_summary = 📋 { $count } گیف/استیکر تنظیم شده. برای حذف هر کدوم، دکمه‌ی زیرش رو بزن.
 
-cmd_removegif_invalid =
-    😐 روی یک «گیف» ریپلای کن.
+triggers_btn_delete = { $action ->
+        [unclown] 🗑 حذف (😇 دلقک‌بردار)
+       *[clown] 🗑 حذف (🤡 دلقک کننده)
+    }
 
-cmd_removegif_empty =
-    😐 هیچ گیفی تنظیم نشده!
+triggers_no_preview =
+    { $media ->
+        [sticker] 🎭 استیکر
+       *[animation] 🎞 گیف
+    } قدیمی، بدون پیش‌نمایش
 
-    اول با /setgif یک گیف اضافه کن.
+    اولین باری که توی گروه فرستاده بشه، پیش‌نمایشش ذخیره می‌شه.
 
-cmd_removegif_not_found =
-    😐 این گیف در لیست گیف‌های تنظیم شده نیست.
-
-cmd_removegif_done =
-    👀 گیف از لیست حذف شد.
-
-cmd_setsticker =
-    🪄 استیکر کاستوم برای دلقک کردن!
-
-    اگه ادمین گروهی، همین دستور setsticker/ رو روی یک استیکر ریپلای کن تا اون استیکر به عنوان «دلقک کننده» ست بشه.
-    📌 حداکثر ۳ استیکر قابل تنظیم است.
-
-cmd_setsticker_invalid =
-    😐 ادمین دلقک ندیده بودیم که دیدیم.
-
-    یَره، موگوم روی «استیکر» ریپلای کن. این چیه ریپلای کردی روش الان؟
-
-cmd_setsticker_limit =
-    😐 ظرفیت استیکرها پره!
-
-    حداکثر ۳ استیکر قابل تنظیمه. اول یکی رو با /removesticker حذف کن.
-
-cmd_setsticker_done =
-    👀 استیکر جدید برای دلقک کردن تنظیم شد. ({ $count } از { $max })
-
-cmd_removesticker_usage =
-    🪄 حذف استیکر دلقک کننده!
-
-    روی یک استیکر ریپلای کن و دستور /removesticker رو بزن تا اون استیکر حذف بشه.
-
-cmd_removesticker_invalid =
-    😐 روی یک «استیکر» ریپلای کن.
-
-cmd_removesticker_empty =
-    😐 هیچ استیکری تنظیم نشده!
-
-    اول با /setsticker یک استیکر اضافه کن.
-
-cmd_removesticker_not_found =
-    😐 این استیکر در لیست استیکرهای تنظیم شده نیست.
-
-cmd_removesticker_done =
-    👀 استیکر از لیست حذف شد.
-
-cmd_setunclowngif =
-    🪄 گیف کاستوم برای دلقک‌برداری!
-
-    اگه ادمین گروهی، همین دستور setunclowngif/ رو روی یک گیف ریپلای کن تا اون گیف به عنوان «دلقک‌بردار» ست بشه.
-    📌 حداکثر ۳ گیف قابل تنظیم است.
-
-cmd_setunclowngif_invalid =
-    😐 ادمین دلقک‌برداری ندیده بودیم که دیدیم.
-
-    یَره، موگوم روی «گیف» ریپلای کن. این چیه ریپلای کردی روش الان؟
-
-cmd_setunclowngif_limit =
-    😐 ظرفیت گیف‌ها پره!
-
-    حداکثر ۳ گیف قابل تنظیمه. اول یکی رو با /removeunclowngif حذف کن.
-
-cmd_setunclowngif_done =
-    👀 گیف جدید برای دلقک‌برداری تنظیم شد. ({ $count } از { $max })
-
-cmd_removeunclowngif_usage =
-    🪄 حذف گیف دلقک‌بردار!
-
-    روی یک گیف ریپلای کن و دستور /removeunclowngif رو بزن تا اون گیف حذف بشه.
-
-cmd_removeunclowngif_invalid =
-    😐 روی یک «گیف» ریپلای کن.
-
-cmd_removeunclowngif_empty =
-    😐 هیچ گیفی تنظیم نشده!
-
-    اول با /setunclowngif یک گیف اضافه کن.
-
-cmd_removeunclowngif_not_found =
-    😐 این گیف در لیست گیف‌های تنظیم شده نیست.
-
-cmd_removeunclowngif_done =
-    👀 گیف از لیست حذف شد.
-
-cmd_setunclownsticker =
-    🪄 استیکر کاستوم برای دلقک‌برداری!
-
-    اگه ادمین گروهی، همین دستور setunclownsticker/ رو روی یک استیکر ریپلای کن تا اون استیکر به عنوان «دلقک‌بردار» ست بشه.
-    📌 حداکثر ۳ استیکر قابل تنظیم است.
-
-cmd_setunclownsticker_invalid =
-    😐 ادمین دلقک‌برداری ندیده بودیم که دیدیم.
-
-    یَره، موگوم روی «استیکر» ریپلای کن. این چیه ریپلای کردی روش الان؟
-
-cmd_setunclownsticker_limit =
-    😐 ظرفیت استیکرها پره!
-
-    حداکثر ۳ استیکر قابل تنظیمه. اول یکی رو با /removeunclownsticker حذف کن.
-
-cmd_setunclownsticker_done =
-    👀 استیکر جدید برای دلقک‌برداری تنظیم شد. ({ $count } از { $max })
-
-cmd_removeunclownsticker_usage =
-    🪄 حذف استیکر دلقک‌بردار!
-
-    روی یک استیکر ریپلای کن و دستور /removeunclownsticker رو بزن تا اون استیکر حذف بشه.
-
-cmd_removeunclownsticker_invalid =
-    😐 روی یک «استیکر» ریپلای کن.
-
-cmd_removeunclownsticker_empty =
-    😐 هیچ استیکری تنظیم نشده!
-
-    اول با /setunclownsticker یک استیکر اضافه کن.
-
-cmd_removeunclownsticker_not_found =
-    😐 این استیکر در لیست استیکرهای تنظیم شده نیست.
-
-cmd_removeunclownsticker_done =
-    👀 استیکر از لیست حذف شد.
+triggers_btn_clear = 🧹 حذف همه
+triggers_clear_confirm = ⚠️ همه‌ی گیف‌ها و استیکرهای دلقک این گروه حذف می‌شن. مطمئنی؟
+triggers_clear_yes = ✅ آره، حذف کن
+triggers_clear_no = ❌ نه
+triggers_cleared = 🧹 همه‌ی گیف‌ها و استیکرها حذف شدن.
+triggers_clear_cancelled = 🤝 هیچی حذف نشد.
 
 cmd_setcooldown_usage =
     ⏱ تنظیم زمان انتظار دلقک

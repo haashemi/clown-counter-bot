@@ -30,7 +30,7 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 - Command scopes: use `PRIVATE` / `GROUP` / `ADMIN` from `src/lib/bot/scopes.ts` (`GROUP` includes the admin scope: Telegram shows admins only the most specific list).
 - Reply with `ctx.replyTo(msg, text, other?)` — it adds `reply_parameters`; never build them by hand.
 - `sequentialize` (per chat) is the first middleware in `Bot` — handlers may assume no concurrent update for the same chat.
-- Supergroup migration: `src/handlers/group/migrate.ts` moves rows on `migrate_to_chat_id`.
+- Supergroup migration: `src/handlers/group/migrate.ts` moves the group, its votes and triggers on `migrate_to_chat_id`.
 
 ## Config & env
 
@@ -39,8 +39,8 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 ## DB schema
 
-- Tables in `src/db/schema/tables.ts` (`users`, `groups`, `clownVotes`), relations in `relations.ts`.
-- IDs are `bigint` (`mode: "number"`) — Telegram chat/user ids exceed int32. `clownVotes.id` is an identity column. Timestamps are `timestamptz`; `gifIds`/`stickerIds` are `jsonb` string arrays.
+- Tables in `src/db/schema/tables.ts` (`users`, `groups`, `clownVotes`, `groupTriggers`), relations in `relations.ts`.
+- IDs are `bigint` (`mode: "number"`) — Telegram chat/user ids exceed int32. `clownVotes.id` is an identity column. Timestamps are `timestamptz`.
 - The pg client is created in `src/db/client.ts`; `@/db` exports `db`, `schema`, `runMigrations` and `saveGroup`.
 - All group writes go through `saveGroup(chatId, title, patch)` (`src/db/index.ts`) — it upserts and refreshes the stored name.
 - Schema changes: edit tables → `vpr db:generate` → `vpr db:migrate` (migrations in `drizzle/`). `casing: "snake_case"` is enforced in both drizzle and the db client.
@@ -54,8 +54,8 @@ ClownCounterBot: a deliberately simple Telegram bot (TypeScript + GrammyJS) that
 
 - The bundle (`vpr build`, `deps.alwaysBundle: [/.*/]`) is self-contained: `dist/` runs without `node_modules`.
 - `drizzle-kit generate` writes a migration snapshot into `drizzle/`; review it.
-- `groups.gifIds` / `stickerIds` are `jsonb` arrays of stable media keys (`mediaKey(file_id)`), not raw Telegram file_ids — see `src/lib/media-key.ts`.
-- `isClownCall` triggers on literal `🤡` / `دلقک` (clown) or `😇` / `ستون` / `آدم عاقل` (unclown) text, OR a group-configured gif/sticker (`src/handlers/group/clown-filter.ts`).
+- Gif/sticker triggers live in `group_triggers` (PK `group_id, key`; `key` = `mediaKey(file_id)`, a stable id — not the raw file_id, which changes). `file_id` is kept only to re-send the media in `/triggers`; rows migrated from the old jsonb columns have it null until the media is next seen by the clown filter. Managed by `/trigger` + `/triggers` in `src/handlers/admin/triggers.ts`; `/trigger`'s prompt replies to the media itself so its buttons' callback message carries the media in `reply_to_message`.
+- `isClownCall` triggers on literal `🤡` / `دلقک` (clown) or `😇` / `ستون` / `آدم عاقل` (unclown) text, OR a gif/sticker in `group_triggers` (`src/handlers/group/clown-filter.ts`).
 - Cooldown stored in ms on `groups.cooldown`; default 10 min in `src/handlers/group/clown.ts`.
 - Verify with `pnpm test` (`vp test --run`) and `pnpm run check` (`vp check` = format + lint + typecheck).
 - Test harness in `src/test/`: `createTestBot()` drives the real bot via `handleUpdate` with a fake Telegram API; DB tests `vi.mock("@/db/client", …)` onto PGlite (`src/test/db.ts`).

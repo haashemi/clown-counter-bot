@@ -2,9 +2,9 @@ import type { BotCommandScope } from "grammy/types";
 
 import type { BotContext } from "@/lib/bot";
 
-import { mediaHandlers } from "./admin/media";
 import { resetStatsCallbacks, resetStatsHandler } from "./admin/resetstats";
 import { setCooldownHandler } from "./admin/setcooldown";
+import { triggerCallbacks, triggerHandlers } from "./admin/triggers";
 import { clownHandlers } from "./group/clown";
 import { clownOfTheDayHandler } from "./group/clownoftheday";
 import { migrateHandler } from "./group/migrate";
@@ -36,7 +36,8 @@ export interface MessageHandler {
 
 export interface CallbackQueryHandler {
   kind: "callback_query";
-  data: string;
+  /** Exact callback data, or a pattern (its match is on `ctx.match`). */
+  data: RegExp | string;
   handler: HandlerFn;
 }
 
@@ -51,7 +52,8 @@ export const handlers: Handler[] = [
   migrateHandler,
 
   // Admins
-  ...mediaHandlers,
+  ...triggerHandlers,
+  ...triggerCallbacks,
   resetStatsHandler,
   ...resetStatsCallbacks,
   setCooldownHandler,

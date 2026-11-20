@@ -1,12 +1,12 @@
+import { and, eq } from "drizzle-orm";
+
 import type { BotContext, ClownCall } from "@/lib/bot";
 
-import { db } from "@/db";
-import { mediaKey } from "@/lib/media-key";
+import { db, schema } from "@/db";
+import { messageMedia } from "@/lib/media-key";
 
 const clownTexts = ["🤡", "دلقک"];
 const unclownTexts = ["😇", "ستون", "آدم عاقل"];
-
-const MEDIA_COLUMNS = { gifIds: true, stickerIds: true, unclownGifIds: true, unclownStickerIds: true } as const;
 
 function matchText(text: string | undefined): ClownCall | null {
   if (clownTexts.includes(text ?? "")) return "clown";
@@ -14,26 +14,22 @@ function matchText(text: string | undefined): ClownCall | null {
   return null;
 }
 
-function matchMedia(group: Record<keyof typeof MEDIA_COLUMNS, string[] | null>, parsedId: string): ClownCall | null {
-  if (group.gifIds?.includes(parsedId) || group.stickerIds?.includes(parsedId)) return "clown";
-  if (group.unclownGifIds?.includes(parsedId) || group.unclownStickerIds?.includes(parsedId)) return "unclown";
-  return null;
-}
-
 async function matchMediaCall(ctx: BotContext): Promise<ClownCall | null> {
-  const fileId = ctx.msg?.animation?.file_id ?? ctx.msg?.sticker?.file_id;
-
+  const media = messageMedia(ctx.msg);
   const chatId = ctx.chat?.id;
-  if (!fileId || !chatId) return null;
+  if (!media || !chatId) return null;
 
-  const group = await db.query.groups.findFirst({
-    columns: MEDIA_COLUMNS,
-    where: (f, o) => o.eq(f.id, chatId),
-  });
+  const where = and(eq(schema.groupTriggers.groupId, chatId), eq(schema.groupTriggers.key, media.key));
+  const [trigger] = await db
+    .select({ action: schema.groupTriggers.action, fileId: schema.groupTriggers.fileId })
+    .from(schema.groupTriggers)
+    .where(where);
+  if (!trigger) return null;
 
-  if (!group) return null;
+  // Rows migrated from the old jsonb columns have no file_id; fill it in so /triggers can preview them.
+  if (trigger.fileId === null) await db.update(schema.groupTriggers).set({ fileId: media.fileId }).where(where);
 
-  return matchMedia(group, mediaKey(fileId));
+  return trigger.action;
 }
 
 /** Matcher for the 🤡/دلقک flow: sets `ctx.clownCall` and returns true, or returns false. */
